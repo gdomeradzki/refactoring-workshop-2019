@@ -6,6 +6,40 @@
 #include "EventT.hpp"
 #include "IPort.hpp"
 
+struct MyClass
+{
+    int a;
+    int b;
+};
+
+namespace asd {
+    
+std::ostream& operator<<(std::ostream& stream, const MyClass ob)
+{
+        stream << "{" << ob.a
+        << ", " << ob.b << "}";
+    return stream;
+}
+
+template <class T>
+std::ostream& operator<<(std::ostream& stream, std::vector<T> const& t) {
+    stream << '[';
+    std::copy(t.begin(), t.end(), std::ostream_iterator<T>(stream, ", "));
+    stream << ']';
+    return stream;
+}
+    
+}  // namespace asd
+
+namespace ut {
+
+void DescribeTo(std::ostream* os, std::vector<MyClass> v) {
+    using namespace asd;
+    *os << v;
+}
+
+}  // namespace ut
+
 namespace Snake
 {
 ConfigurationError::ConfigurationError()
@@ -66,6 +100,7 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
 void Controller::receive(std::unique_ptr<Event> e)
 {
     try {
+      //do not use dynamic_cast
         auto const& timerEvent = *dynamic_cast<EventT<TimeoutInd> const&>(*e);
 
         Segment const& currentHead = m_segments.front();
