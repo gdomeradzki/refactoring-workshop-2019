@@ -105,28 +105,32 @@ void Controller::handleDirectionChange(const DirectionInd& directionInd)
         if ((m_currentDirection & 0b01) != (direction & 0b01)) {
             m_currentDirection = direction;
         }
-     }
+    }
 }
 
 void Controller::handleFoodPositionChange(const FoodInd& receivedFood)
 {
-    bool requestedFoodCollidedWithSnake = false;
-    for (auto const& segment : m_segments) {
-        if (segment.x == receivedFood.x and segment.y == receivedFood.y) {
-            requestedFoodCollidedWithSnake = true;
-            break;
+    if(getIsPaused() == false)
+    {
+        bool requestedFoodCollidedWithSnake = false;
+
+        for (auto const& segment : m_segments) {
+            if (segment.x == receivedFood.x and segment.y == receivedFood.y) {
+                requestedFoodCollidedWithSnake = true;
+                break;
+            }
         }
+
+        if (requestedFoodCollidedWithSnake) {
+            m_foodPort.send(std::make_unique<EventT<FoodReq>>());
+        } else {
+            repaintTile(m_foodPosition.first, m_foodPosition.second, Cell_FREE);
+
+            repaintTile(receivedFood.x, receivedFood.y, Cell_FOOD);
+        }
+
+        m_foodPosition = std::make_pair(receivedFood.x, receivedFood.y);
     }
-
-    if (requestedFoodCollidedWithSnake) {
-        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
-    } else {
-        repaintTile(m_foodPosition.first, m_foodPosition.second, Cell_FREE);
-
-        repaintTile(receivedFood.x, receivedFood.y, Cell_FOOD);
-    }
-
-    m_foodPosition = std::make_pair(receivedFood.x, receivedFood.y);
 }
 
 void Controller::handleNewFood(const FoodResp& requestedFood)
