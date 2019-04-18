@@ -33,6 +33,7 @@ public:
     void receive(std::unique_ptr<Event> e) override;
     void handleEventInd(FoodInd const&);
     void handleEventResp(FoodResp const&);
+    void handlingEvent(std::unique_ptr<Event> e);
 
 private:
     struct Segment
