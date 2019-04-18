@@ -35,6 +35,8 @@ public:
 
     void palceNewFoodMethod(auto receivedFood);
 
+    void placeNewFoodForRequestedFood(auto requestedFood);
+    
 private:
     struct Segment
     {
