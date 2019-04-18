@@ -176,11 +176,8 @@ void Controller::receive(std::unique_ptr<Event> e)
                     if (requestedFoodCollidedWithSnake) {
                         m_foodPort.send(std::make_unique<EventT<FoodReq>>());
                     } else {
-                        DisplayInd placeNewFood;
-                        placeNewFood.x = requestedFood.x;
-                        placeNewFood.y = requestedFood.y;
-                        placeNewFood.value = Cell_FOOD;
-                        m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
+                       handleEventRequestedFood(requestedFood );
+
                     }
 
                     m_foodPosition = std::make_pair(requestedFood.x, requestedFood.y);
@@ -192,4 +189,15 @@ void Controller::receive(std::unique_ptr<Event> e)
     }
 }
 
+void Controller::handleEventRequestedFood(FoodResp const& requestedFood )
+{
+    DisplayInd placeNewFood;
+    placeNewFood.x = requestedFood.x;
+    placeNewFood.y = requestedFood.y;
+    placeNewFood.value = Cell_FOOD;
+    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
+}
+
+
 } // namespace Snake
+

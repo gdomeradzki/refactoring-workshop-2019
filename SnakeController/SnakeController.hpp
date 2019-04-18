@@ -1,5 +1,5 @@
 #pragma once
-
+#include "EventT.hpp"
 #include <list>
 #include <memory>
 
@@ -32,6 +32,8 @@ public:
     void receive(std::unique_ptr<Event> e) override;
 
 private:
+    void handleEventRequestedFood(FoodResp const& requestedFood);
+
     struct Segment
     {
         int x;
