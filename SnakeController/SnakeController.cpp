@@ -217,7 +217,7 @@ void Controller::receive(std::unique_ptr<Event> e)
 {
     switch(e->getMessageId())
     {
-        case EventName::TimeOutInd:
+        case 0x20:
         handleTimePassed(*static_cast<EventT<TimeoutInd> const&>(*e));
         break;
 
