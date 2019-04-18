@@ -66,6 +66,8 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
 
 void Controller::handleTimePassed(const TimeoutInd&)
 {
+    if(!paused)
+    {
     Segment newHead = getNewHead();
 
     if(doesCollideWithSnake(newHead))
@@ -93,8 +95,9 @@ void Controller::handleTimePassed(const TimeoutInd&)
     }
 
     m_segments.push_front(newHead);
-    repaintTile(newHead, Cell_SNAKE);
 
+    repaintTile(newHead, Cell_SNAKE);
+}
     cleanNotExistingSnakeSegments();
 }
 
