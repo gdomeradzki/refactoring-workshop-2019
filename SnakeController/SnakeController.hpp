@@ -52,6 +52,7 @@ private:
     bool requestedFood(std::unique_ptr<Event> e);
     DisplayInd clearOldFood(std::pair<int,int> m_foodPosition);
     bool checkSegments(Segment& newHead);
+    bool doesFoodCollidedWithSnake(std::unique_ptr<Event> e);
     void displaySegments();
     Segment getNewHead(Segment const& currentHead);
 

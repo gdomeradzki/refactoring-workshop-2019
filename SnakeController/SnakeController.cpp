@@ -115,6 +115,22 @@ void Controller::displaySegments()
         }
     }
 }
+
+bool Controller::doesFoodCollidedWithSnake(std::unique_ptr<Event> e)
+{
+    auto requestedFood = *dynamic_cast<EventT<FoodResp> const&>(*e);
+    bool requestedFoodCollidedWithSnake = false;
+    for (auto const& segment : m_segments)
+    {
+        if (segment.x == requestedFood.x and segment.y == requestedFood.y)
+        {
+            requestedFoodCollidedWithSnake = true;
+            break;
+        }
+    }
+    return requestedFoodCollidedWithSnake;
+}
+
 DisplayInd Controller::clearOldFood(std::pair<int,int> m_foodPosition)
 {
     DisplayInd clearOldFood;
@@ -234,13 +250,15 @@ void Controller::receive(std::unique_ptr<Event> e) //hiperprzekombinowana interp
                 try {
                     auto requestedFood = *dynamic_cast<EventT<FoodResp> const&>(*e);
 
-                    bool requestedFoodCollidedWithSnake = false;
-                    for (auto const& segment : m_segments) {
-                        if (segment.x == requestedFood.x and segment.y == requestedFood.y) {
-                            requestedFoodCollidedWithSnake = true;
-                            break;
-                        }
-                    }
+                    bool requestedFoodCollidedWithSnake = doesFoodCollidedWithSnake(std::move(e));
+//                    for (auto const& segment : m_segments)
+//                    {
+//                        if (segment.x == requestedFood.x and segment.y == requestedFood.y)
+//                        {
+//                            requestedFoodCollidedWithSnake = true;
+//                            break;
+//                        }
+//                    }
 
                     if (requestedFoodCollidedWithSnake) {
                         m_foodPort.send(std::make_unique<EventT<FoodReq>>());
