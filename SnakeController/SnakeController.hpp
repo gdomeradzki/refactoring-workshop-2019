@@ -22,7 +22,7 @@ struct Segment
 class RSnake{
 public:
     std::list<Segment> m_segments;
-
+    Direction m_currentDirection;
 };
 
 
@@ -57,7 +57,7 @@ private:
 
 
     RSnake snake;
-    Direction m_currentDirection;
+
     void handleTimeoutInd();
     void handleDirectionInd(std::unique_ptr<Event>);
     void handleFoodInd(std::unique_ptr<Event>);

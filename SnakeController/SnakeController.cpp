@@ -36,16 +36,16 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
         istr >> d;
         switch (d) {
             case 'U':
-                m_currentDirection = Direction_UP;
+                snake.m_currentDirection = Direction_UP;
                 break;
             case 'D':
-                m_currentDirection = Direction_DOWN;
+                snake.m_currentDirection = Direction_DOWN;
                 break;
             case 'L':
-                m_currentDirection = Direction_LEFT;
+                snake.m_currentDirection = Direction_LEFT;
                 break;
             case 'R':
-                m_currentDirection = Direction_RIGHT;
+                snake.m_currentDirection = Direction_RIGHT;
                 break;
             default:
                 throw ConfigurationError();
@@ -124,8 +124,8 @@ Segment Controller::calculateNewHead() const
     Segment const& currentHead = snake.m_segments.front();
 
     Segment newHead;
-    newHead.x = currentHead.x + (isHorizontal(m_currentDirection) ? isPositive(m_currentDirection) ? 1 : -1 : 0);
-    newHead.y = currentHead.y + (isVertical(m_currentDirection) ? isPositive(m_currentDirection) ? 1 : -1 : 0);
+    newHead.x = currentHead.x + (isHorizontal(snake.m_currentDirection) ? isPositive(snake.m_currentDirection) ? 1 : -1 : 0);
+    newHead.y = currentHead.y + (isVertical(snake.m_currentDirection) ? isPositive(snake.m_currentDirection) ? 1 : -1 : 0);
 
     return newHead;
 }
@@ -184,8 +184,8 @@ void Controller::handleDirectionInd(std::unique_ptr<Event> e)
 {
     auto direction = payload<DirectionInd>(*e).direction;
 
-    if (perpendicular(m_currentDirection, direction)) {
-        m_currentDirection = direction;
+    if (perpendicular(snake.m_currentDirection, direction)) {
+        snake.m_currentDirection = direction;
     }
 }
 
