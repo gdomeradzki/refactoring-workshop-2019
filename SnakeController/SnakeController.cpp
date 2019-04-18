@@ -215,12 +215,10 @@ Controller::Segment Controller::getNewHead() const
 
 void Controller::receive(std::unique_ptr<Event> e)
 {
-    try {
             if(e->getMessageId()==0x20)
             {
               handleTimePassed(*static_cast<EventT<TimeoutInd> const&>(*e));
             }
-
 
             else if(e->getMessageId()==0x10)
             {
@@ -236,12 +234,11 @@ void Controller::receive(std::unique_ptr<Event> e)
             {
                 handleNewFood(*static_cast<EventT<FoodResp> const&>(*e));
             }
+
             else {
-              throw ;
+              throw UnexpectedEventException();
        }
-            } catch (std::bad_cast&) {
-                throw UnexpectedEventException();
-            }
+
 
 }
 
