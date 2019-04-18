@@ -21,6 +21,19 @@ struct UnexpectedEventException : std::runtime_error
 {
     UnexpectedEventException();
 };
+struct Segment
+{
+    int x;
+    int y;
+};
+ 
+class SnakeBody
+{
+public:
+   std::list<Segment> m_segments;
+    Direction m_currentDirection;
+};
+
 
 class Controller : public IEventHandler
 {
@@ -37,17 +50,10 @@ private:
     IPort& m_foodPort;
     IPort& m_scorePort;
 
+    SnakeBody snakebody;
+
     std::pair<int, int> m_mapDimension;
     std::pair<int, int> m_foodPosition;
-
-    struct Segment
-    {
-        int x;
-        int y;
-    };
-
-    std::list<Segment> m_segments;
-    Direction m_currentDirection;
 
     void handleTimeoutInd();
     void handleDirectionInd(std::unique_ptr<Event>);
@@ -55,6 +61,7 @@ private:
     void handleFoodResp(std::unique_ptr<Event>);
     void handlePauseInd(std::unique_ptr<Event>);
 
+    
     bool isSegmentAtPosition(int x, int y) const;
     Segment calculateNewHead() const;
     void updateSegmentsIfSuccessfullMove(Segment const& newHead);
@@ -70,5 +77,6 @@ private:
 
     bool m_paused;
 };
+
 
 } // namespace Snake
