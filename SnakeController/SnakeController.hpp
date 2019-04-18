@@ -22,6 +22,15 @@ struct UnexpectedEventException : std::runtime_error
     UnexpectedEventException();
 };
 
+struct World
+{
+    //void updateFoodPosition(int x, int y, std::function<void()> clearPolicy);
+    bool isPositionOutsideMap(int x, int y) const;
+
+    std::pair<int, int> m_mapDimension;
+    std::pair<int, int> m_foodPosition;
+};
+
 class Controller : public IEventHandler
 {
 public:
@@ -37,8 +46,8 @@ private:
     IPort& m_foodPort;
     IPort& m_scorePort;
 
-    std::pair<int, int> m_mapDimension;
-    std::pair<int, int> m_foodPosition;
+    //std::pair<int, int> m_mapDimension;
+    //std::pair<int, int> m_foodPosition;
 
     struct Segment
     {
@@ -62,13 +71,16 @@ private:
     void removeTailSegmentIfNotScored(Segment const& newHead);
     void removeTailSegment();
 
-    bool isPositionOutsideMap(int x, int y) const;
+    //bool isPositionOutsideMap(int x, int y) const;
 
     void updateFoodPosition(int x, int y, std::function<void()> clearPolicy);
     void sendClearOldFood();
     void sendPlaceNewFood(int x, int y);
 
     bool m_paused;
+
+    World m_world;
 };
+
 
 } // namespace Snake
