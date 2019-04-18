@@ -30,8 +30,8 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
     istr >> w >> width >> height >> f >> foodX >> foodY >> s;
 
     if (w == 'W' and f == 'F' and s == 'S') {
-        world.m_mapDimension = std::make_pair(width, height);
-        world.m_foodPosition = std::make_pair(foodX, foodY);
+        world.getMapDimension() = std::make_pair(width, height);
+        world.getFoodPosition() = std::make_pair(foodX, foodY);
 
         istr >> d;
         switch (d) {
@@ -70,12 +70,12 @@ bool Controller::isSegmentAtPosition(int x, int y) const
 
 bool Controller::isPositionOutsideMap(int x, int y) const
 {
-    return x < 0 or y < 0 or x >= world.m_mapDimension.first or y >= world.m_mapDimension.second;
+    return x < 0 or y < 0 or x >= world.getMapDimension().first or y >= world.getMapDimension().second;
 }
 
 void Controller::sendPlaceNewFood(int x, int y)
 {
-    world.m_foodPosition = std::make_pair(x, y);
+    world.getFoodPosition() = std::make_pair(x, y);
 
     DisplayInd placeNewFood;
     placeNewFood.x = x;
@@ -88,8 +88,8 @@ void Controller::sendPlaceNewFood(int x, int y)
 void Controller::sendClearOldFood()
 {
     DisplayInd clearOldFood;
-    clearOldFood.x = world.m_foodPosition.first;
-    clearOldFood.y = world.m_foodPosition.second;
+    clearOldFood.x = world.getFoodPosition().first;
+    clearOldFood.y = world.getFoodPosition().second;
     clearOldFood.value = Cell_FREE;
 
     m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearOldFood));
@@ -157,7 +157,7 @@ void Controller::addHeadSegment(Segment const& newHead)
 
 void Controller::removeTailSegmentIfNotScored(Segment const& newHead)
 {
-    if (std::make_pair(newHead.x, newHead.y) == world.m_foodPosition) {
+    if (std::make_pair(newHead.x, newHead.y) == world.getFoodPosition()) {
         m_scorePort.send(std::make_unique<EventT<ScoreInd>>());
         m_foodPort.send(std::make_unique<EventT<FoodReq>>());
     } else {

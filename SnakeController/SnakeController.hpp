@@ -21,10 +21,29 @@ struct UnexpectedEventException : std::runtime_error
 {
     UnexpectedEventException();
 };
-struct World
+class World
 {
-    std::pair<int, int> m_mapDimension;
-    std::pair<int, int> m_foodPosition;
+  std::pair<int, int> m_foodPosition;
+   std::pair<int, int> m_mapDimension;
+public:
+
+
+   std::pair<int, int>& getMapDimension()
+   {
+       return m_mapDimension;
+   }
+   const std::pair<int, int>& getMapDimension() const
+   {
+       return m_mapDimension;
+   }
+   std::pair<int, int>& getFoodPosition()
+   {
+       return m_foodPosition;
+   }
+   const std::pair<int, int>& getFoodPosition() const
+   {
+       return m_foodPosition;
+   }
 };
 struct Segment
 {
@@ -33,8 +52,18 @@ struct Segment
 };
 struct Body
 {
-    std::list<Segment> m_segments;
+
     Direction m_currentDirection;
+
+    std::list<Segment>& getSegments()
+    {
+        return m_segments;
+    }
+    Direction& getCurrentDirection()
+    {
+        return m_currentDirection;
+    }
+    std::list<Segment> m_segments;
 };
 class Controller : public IEventHandler
 {
