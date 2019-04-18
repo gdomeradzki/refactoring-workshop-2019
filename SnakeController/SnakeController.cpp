@@ -90,6 +90,27 @@ void Controller::placeNewFoodForRequestedFood(auto requestedFood)
     m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
 }
 
+void Controller::checkIfSnakeCollide(auto requestedFood, bool requestedFoodCollidedWithSnake)
+{
+    if (requestedFoodCollidedWithSnake) {
+        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
+    } else {
+        placeNewFoodForRequestedFood(requestedFood);
+    }
+}
+
+void Controller::checkingCollisionAndDoingAction(bool requestedFoodCollidedWithSnake, auto receivedFood)
+{
+    if (requestedFoodCollidedWithSnake) {
+        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
+    } else {
+
+        clearOldFoodMethod();
+
+        palceNewFoodMethod(receivedFood);
+    }
+}
+
 void Controller::receive(std::unique_ptr<Event> e)
 {
     try {
@@ -170,14 +191,7 @@ void Controller::receive(std::unique_ptr<Event> e)
                     }
                 }
 
-                if (requestedFoodCollidedWithSnake) {
-                    m_foodPort.send(std::make_unique<EventT<FoodReq>>());
-                } else {
-
-                    clearOldFoodMethod();
-
-                    palceNewFoodMethod(receivedFood);
-                }
+                checkingCollisionAndDoingAction(requestedFoodCollidedWithSnake, receivedFood);
 
                 m_foodPosition = std::make_pair(receivedFood.x, receivedFood.y);
 
@@ -193,11 +207,7 @@ void Controller::receive(std::unique_ptr<Event> e)
                         }
                     }
 
-                    if (requestedFoodCollidedWithSnake) {
-                        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
-                    } else {               
-                        placeNewFoodForRequestedFood(requestedFood);
-                    }
+                    checkIfSnakeCollide(requestedFood, requestedFoodCollidedWithSnake);
 
                     m_foodPosition = std::make_pair(requestedFood.x, requestedFood.y);
                 } catch (std::bad_cast&) {

@@ -37,6 +37,10 @@ public:
 
     void placeNewFoodForRequestedFood(auto requestedFood);
     
+    void checkIfSnakeCollide(auto requestedFood, bool requestedFoodCollidedWithSnake);
+
+    void checkingCollisionAndDoingAction(bool requestedFoodCollidedWithSnake, auto receivedFood);
+
 private:
     struct Segment
     {
