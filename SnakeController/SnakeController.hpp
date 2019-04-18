@@ -10,6 +10,26 @@
 class Event;
 class IPort;
 
+
+struct Segment
+{
+    int x;
+    int y;
+};
+
+class RSnake
+{
+public:
+  std::list<Segment> m_segments;
+};
+
+class World
+{
+public:
+  std::pair<int, int> m_mapDimension;
+  std::pair<int, int> m_foodPosition;
+};
+
 namespace Snake
 {
 struct ConfigurationError : std::logic_error
@@ -32,21 +52,13 @@ public:
 
     void receive(std::unique_ptr<Event> e) override;
 
+    RSnake snake;
+    World world;
 private:
     IPort& m_displayPort;
     IPort& m_foodPort;
     IPort& m_scorePort;
 
-    std::pair<int, int> m_mapDimension;
-    std::pair<int, int> m_foodPosition;
-
-    struct Segment
-    {
-        int x;
-        int y;
-    };
-
-    std::list<Segment> m_segments;
     Direction m_currentDirection;
 
     void handleTimeoutInd();
@@ -72,3 +84,5 @@ private:
 };
 
 } // namespace Snake
+
+
