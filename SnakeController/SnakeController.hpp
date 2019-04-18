@@ -36,6 +36,7 @@ private:
     void handleDirectionChange(const DirectionInd&);
     void handleFoodPositionChange(const FoodInd& receivedFood);
     void handleNewFood(const FoodResp& requestedFood);
+    void handlePause();
 
     struct Segment
     {
@@ -55,6 +56,7 @@ private:
 
     void cleanNotExistingSnakeSegments();
 
+    bool pauseFlag;
 
     IPort& m_displayPort;
     IPort& m_foodPort;
