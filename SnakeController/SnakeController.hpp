@@ -48,6 +48,10 @@ private:
 
     Direction m_currentDirection;
     std::list<Segment> m_segments;
+
+    void requestedFoodHandler(Segment);
+    bool foodHandler(auto requestedFood);
+    void checkSelfSnakeCollision(Segment newHead, bool& lost);
 };
 
 } // namespace Snake
