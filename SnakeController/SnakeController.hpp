@@ -31,6 +31,10 @@ public:
 
     void receive(std::unique_ptr<Event> e) override;
 
+    void clearOldFoodMethod();
+
+    void palceNewFoodMethod(auto receivedFood);
+
 private:
     struct Segment
     {
