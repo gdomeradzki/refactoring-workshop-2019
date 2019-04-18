@@ -22,7 +22,7 @@ struct UnexpectedEventException : std::runtime_error
     UnexpectedEventException();
 };
 
-class Controller : public IEventHandler
+class Controller : public IEventHandler, Segment, Handler
 {
 public:
     Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePort, std::string const& p_config);
@@ -40,35 +40,37 @@ private:
     std::pair<int, int> m_mapDimension;
     std::pair<int, int> m_foodPosition;
 
-    struct Segment
-    {
-        int x;
-        int y;
-    };
-
-    std::list<Segment> m_segments;
     Direction m_currentDirection;
 
     void handleTimeoutInd();
+
     void handleDirectionInd(std::unique_ptr<Event>);
     void handleFoodInd(std::unique_ptr<Event>);
     void handleFoodResp(std::unique_ptr<Event>);
     void handlePauseInd(std::unique_ptr<Event>);
 
+    bool isPositionOutsideMap(int x, int y) const;
+    void updateFoodPosition(int x, int y, std::function<void()> clearPolicy);
+    void sendClearOldFood();
+    void sendPlaceNewFood(int x, int y);
+
+    std::list<Segment> m_segments;
+    
     bool isSegmentAtPosition(int x, int y) const;
     Segment calculateNewHead() const;
     void updateSegmentsIfSuccessfullMove(Segment const& newHead);
     void addHeadSegment(Segment const& newHead);
     void removeTailSegmentIfNotScored(Segment const& newHead);
     void removeTailSegment();
-
-    bool isPositionOutsideMap(int x, int y) const;
-
-    void updateFoodPosition(int x, int y, std::function<void()> clearPolicy);
-    void sendClearOldFood();
-    void sendPlaceNewFood(int x, int y);
-
+   
     bool m_paused;
 };
-
+class Handler {
+ 
+};
+class Segment{
+public:
+    int x;
+    int y;
+};
 } // namespace Snake
