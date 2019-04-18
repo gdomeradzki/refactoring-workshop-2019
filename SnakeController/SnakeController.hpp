@@ -3,6 +3,7 @@
 #include <list>
 #include <memory>
 #include <functional>
+#include <sstream>
 
 #include "IEventHandler.hpp"
 #include "SnakeInterface.hpp"
@@ -12,6 +13,30 @@ class IPort;
 
 namespace Snake
 {
+class Snake 
+{
+public:
+    Snake() = delete;
+    Snake(std::string& p_config)
+    {
+        std::istringstream istr(p_config);
+        int length = istr >> length;
+        while (length--) {
+        Segment seg;
+        istr >> seg.x >> seg.y;
+        m_segments.push_back(seg);
+        }
+    }
+    struct Segment
+    {
+        int x;
+        int y;
+    };
+
+    std::list<Segment> m_segments;
+
+};
+
 struct ConfigurationError : std::logic_error
 {
     ConfigurationError();
@@ -33,6 +58,7 @@ public:
     void receive(std::unique_ptr<Event> e) override;
 
 private:
+    Snake m_snake;
     IPort& m_displayPort;
     IPort& m_foodPort;
     IPort& m_scorePort;
@@ -40,13 +66,6 @@ private:
     std::pair<int, int> m_mapDimension;
     std::pair<int, int> m_foodPosition;
 
-    struct Segment
-    {
-        int x;
-        int y;
-    };
-
-    std::list<Segment> m_segments;
     Direction m_currentDirection;
 
     void handleTimeoutInd();
@@ -70,5 +89,4 @@ private:
 
     bool m_paused;
 };
-
 } // namespace Snake
