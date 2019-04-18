@@ -32,6 +32,7 @@ public:
     void receive(std::unique_ptr<Event> e) override;
 
 private:
+    void handlePause( const PauseInd& );
     void handleTimePassed(const TimeoutInd&);
     void handleDirectionChange(const DirectionInd&);
     void handleFoodPositionChange(const FoodInd& receivedFood);
@@ -55,7 +56,7 @@ private:
 
     void cleanNotExistingSnakeSegments();
 
-
+    bool pause = false;
     IPort& m_displayPort;
     IPort& m_foodPort;
     IPort& m_scorePort;
