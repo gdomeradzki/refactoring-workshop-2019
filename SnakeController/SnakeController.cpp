@@ -138,7 +138,7 @@ auto Controller::SendDisplayInd(Segment& newHead, bool& lost)
     }
 }
 
-void Controller::idk(Segment& newHead)
+void Controller::HandleNewHead(Segment& newHead)
 {
     m_segments.push_front(newHead);
     DisplayInd placeNewHead;
@@ -156,31 +156,35 @@ void Controller::idk(Segment& newHead)
         m_segments.end());
 }
 
+void Controller::HandCurrentHead(TimeoutInd timerEvent)
+{
+    Segment const& currentHead = m_segments.front();
+
+    Segment newHead;
+    newHead.x = currentHead.x + ((m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
+    newHead.y = currentHead.y + (not (m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
+    newHead.ttl = currentHead.ttl;
+
+    bool lost = false;
+
+    for (auto segment : m_segments) {
+        if (segment.x == newHead.x and segment.y == newHead.y) {
+            m_scorePort.send(std::make_unique<EventT<LooseInd>>());
+            lost = true;
+            break;
+        }
+    }
+
+    if (not lost) { SendDisplayInd(newHead, lost);}
+
+    if (not lost) { HandleNewHead(newHead);}
+}
+
 void Controller::receive(std::unique_ptr<Event> e)
 {
     try {
         auto const& timerEvent = *dynamic_cast<EventT<TimeoutInd> const&>(*e);
-
-        Segment const& currentHead = m_segments.front();
-
-        Segment newHead;
-        newHead.x = currentHead.x + ((m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
-        newHead.y = currentHead.y + (not (m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
-        newHead.ttl = currentHead.ttl;
-
-        bool lost = false;
-
-        for (auto segment : m_segments) {
-            if (segment.x == newHead.x and segment.y == newHead.y) {
-                m_scorePort.send(std::make_unique<EventT<LooseInd>>());
-                lost = true;
-                break;
-            }
-        }
-
-        if (not lost) { SendDisplayInd(newHead, lost);}
-
-        if (not lost) { idk(newHead);}
+        HandCurrentHead(timerEvent);
 
     } catch (std::bad_cast&) {
         try {

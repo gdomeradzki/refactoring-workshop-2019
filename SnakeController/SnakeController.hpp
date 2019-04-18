@@ -36,7 +36,8 @@ public:
     auto handleRequestedFood(FoodResp requestedFood);
     auto handleReceivedFood(FoodInd receivedFood);
     auto SendDisplayInd(Segment&, bool&);
-    void idk(Segment&);
+    void HandleNewHead(Segment&);
+    void HandCurrentHead(TimeoutInd timerEvent);
     void receive(std::unique_ptr<Event> e) override;
 
 private:
