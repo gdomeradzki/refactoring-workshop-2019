@@ -22,6 +22,44 @@ struct UnexpectedEventException : std::runtime_error
     UnexpectedEventException();
 };
 
+class World
+{
+public:
+    std::pair<int, int> getMapDimension() const {return m_mapDimension;}
+    std::pair<int, int> getFoodPosition() const {return m_foodPosition;}
+
+    void setMapDimension(std::pair<int, int> mapDim) {m_mapDimension = mapDim;}
+    void setFoodPosition(std::pair<int, int> foodPos) {m_foodPosition = foodPos;}
+
+private:
+    std::pair<int, int> m_mapDimension;
+    std::pair<int, int> m_foodPosition;
+};
+struct Segment
+{
+    int x;
+    int y;
+};
+class Snake
+{
+
+private:
+
+    std::list<Segment> m_segments;
+    Direction m_currentDirection;
+public:
+    std::list<Segment> getSegments() const {return m_segments;}
+    Direction getCurrentDirection() const {return m_currentDirection;}
+
+
+    void addSegments(Segment newSegment) {m_segments.push_back(newSegment);}
+    void addSegmentsFront(Segment newSegment) {m_segments.push_front(newSegment);}
+
+    void setDirection(Direction newDirection) {m_currentDirection = newDirection;}
+
+};
+
+
 class Controller : public IEventHandler
 {
 public:
@@ -37,17 +75,15 @@ private:
     IPort& m_foodPort;
     IPort& m_scorePort;
 
-    std::pair<int, int> m_mapDimension;
-    std::pair<int, int> m_foodPosition;
+    World m_world;
+    Snake m_snake;
+   // std::pair<int, int> m_mapDimension;
+   // std::pair<int, int> m_foodPosition;
 
-    struct Segment
-    {
-        int x;
-        int y;
-    };
 
-    std::list<Segment> m_segments;
-    Direction m_currentDirection;
+
+//    std::list<Segment> m_segments;
+//    Direction m_currentDirection;
 
     void handleTimeoutInd();
     void handleDirectionInd(std::unique_ptr<Event>);
