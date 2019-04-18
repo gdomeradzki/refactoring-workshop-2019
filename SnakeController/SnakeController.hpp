@@ -39,6 +39,17 @@ private:
         int ttl;
     };
 
+    bool checkCollisionWithItself(const Segment&);
+    bool checkCollisionWithBorders(const Segment&);
+    void checkCollisionWithFood(const Segment&);
+    void moveSnake();
+    void moveHead(const Segment&);
+    bool checkIfFoodCollidesWithSnake(const FoodInd &);
+    bool checkIfFoodCollidesWithSnake(const FoodResp& receivedFood);
+    void placeNewFood(const FoodInd& receivedFood);
+    void placeNewFood(const FoodResp& receivedFood);
+    void clearOldFood();
+
     IPort& m_displayPort;
     IPort& m_foodPort;
     IPort& m_scorePort;
