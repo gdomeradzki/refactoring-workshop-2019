@@ -5,6 +5,7 @@
 
 #include "IEventHandler.hpp"
 #include "SnakeInterface.hpp"
+#include "EventT.hpp"
 
 class Event;
 class IPort;
@@ -30,6 +31,8 @@ public:
     Controller& operator=(Controller const& p_rhs) = delete;
 
     void receive(std::unique_ptr<Event> e) override;
+    void handleEventInd(FoodInd const&);
+    void handleEventResp(FoodResp const&);
 
 private:
     struct Segment
