@@ -143,21 +143,23 @@ void Controller::receive(std::unique_ptr<Event> e)
                     }
                 }
 
-                if (requestedFoodCollidedWithSnake) {
+                if (requestedFoodCollidedWithSnake)
+                {
                     m_foodPort.send(std::make_unique<EventT<FoodReq>>());
-                } else {
-                    DisplayInd clearOldFood;
-                    clearOldFood.x = m_foodPosition.first;
-                    clearOldFood.y = m_foodPosition.second;
-                    clearOldFood.value = Cell_FREE;
-                    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearOldFood));
+                } else
+                    {
+                        DisplayInd clearOldFood;
+                        clearOldFood.x = m_foodPosition.first;
+                        clearOldFood.y = m_foodPosition.second;
+                        clearOldFood.value = Cell_FREE;
+                        m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearOldFood));
 
-                    DisplayInd placeNewFood;
-                    placeNewFood.x = receivedFood.x;
-                    placeNewFood.y = receivedFood.y;
-                    placeNewFood.value = Cell_FOOD;
-                    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
-                }
+                        DisplayInd placeNewFood;
+                        placeNewFood.x = receivedFood.x;
+                        placeNewFood.y = receivedFood.y;
+                        placeNewFood.value = Cell_FOOD;
+                        m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
+                    }
 
                 m_foodPosition = std::make_pair(receivedFood.x, receivedFood.y);
 
@@ -191,5 +193,6 @@ void Controller::receive(std::unique_ptr<Event> e)
         }
     }
 }
+
 
 } // namespace Snake
