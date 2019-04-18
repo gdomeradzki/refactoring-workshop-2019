@@ -21,7 +21,21 @@ struct UnexpectedEventException : std::runtime_error
 {
     UnexpectedEventException();
 };
-
+struct World
+{
+    std::pair<int, int> m_mapDimension;
+    std::pair<int, int> m_foodPosition;
+};
+struct Segment
+{
+    int x;
+    int y;
+};
+struct Body
+{
+    std::list<Segment> m_segments;
+    Direction m_currentDirection;
+};
 class Controller : public IEventHandler
 {
 public:
@@ -37,17 +51,11 @@ private:
     IPort& m_foodPort;
     IPort& m_scorePort;
 
-    std::pair<int, int> m_mapDimension;
-    std::pair<int, int> m_foodPosition;
+    World world;
+    Body body;
 
-    struct Segment
-    {
-        int x;
-        int y;
-    };
 
-    std::list<Segment> m_segments;
-    Direction m_currentDirection;
+
 
     void handleTimeoutInd();
     void handleDirectionInd(std::unique_ptr<Event>);
