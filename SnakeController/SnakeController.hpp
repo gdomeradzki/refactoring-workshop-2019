@@ -36,6 +36,7 @@ private:
     void handleDirectionChange(const DirectionInd&);
     void handleFoodPositionChange(const FoodInd& receivedFood);
     void handleNewFood(const FoodResp& requestedFood);
+    void handlePause(const PauseInd& pause);
 
     struct Segment
     {
@@ -43,6 +44,8 @@ private:
         int y;
         int ttl;
     };
+
+    bool isPaused = false;
 
     Segment getNewHead() const;
     bool doesCollideWithSnake(const Segment& newSegment) const;
