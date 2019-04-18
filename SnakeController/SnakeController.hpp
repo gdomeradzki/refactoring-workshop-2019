@@ -9,9 +9,23 @@
 
 class Event;
 class IPort;
-
+class Controller;
 namespace Snake
 {
+
+
+class Board
+{
+
+public:
+    void updateFoodPosition(int x, int y, std::function<void()> clearPolicy, Controller *);
+    bool isPositionOutsideMap(int x, int y) const;
+
+    std::pair<int, int> m_mapDimension;
+    std::pair<int, int> m_foodPosition;
+};
+
+
 struct ConfigurationError : std::logic_error
 {
     ConfigurationError();
@@ -32,13 +46,14 @@ public:
 
     void receive(std::unique_ptr<Event> e) override;
 
+
 private:
     IPort& m_displayPort;
     IPort& m_foodPort;
     IPort& m_scorePort;
 
-    std::pair<int, int> m_mapDimension;
-    std::pair<int, int> m_foodPosition;
+   // std::pair<int, int> m_mapDimension;
+   // std::pair<int, int> m_foodPosition;
 
     struct Segment
     {
@@ -69,6 +84,13 @@ private:
     void sendPlaceNewFood(int x, int y);
 
     bool m_paused;
+    Board myBoard;
+
 };
+
+
+
+
+
 
 } // namespace Snake
