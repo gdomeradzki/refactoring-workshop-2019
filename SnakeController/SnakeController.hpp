@@ -48,6 +48,12 @@ private:
 
     Direction m_currentDirection;
     std::list<Segment> m_segments;
+    bool checkIfSnakeAteItself(Segment newHead);
+    bool snakeBehaviourAndEat(Segment newHead);
+    bool checkIfFoodAppearedInSnakeBody(auto receivedFood);
+    void createNewFoodLonger(auto receivedFood, bool requestedFoodCollidedWithSnake);
+    void createNewFoodShorter(bool requestedFoodCollidedWithSnake, auto requestedFood);
+    void changeDirection(auto direction);
 };
 
 } // namespace Snake
