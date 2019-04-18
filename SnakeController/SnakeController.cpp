@@ -216,16 +216,16 @@ Controller::Segment Controller::getNewHead() const
 void Controller::receive(std::unique_ptr<Event> e)
 {
     if (e->getMessageId()==TimeoutInd::MESSAGE_ID){
-         handleTimePassed(*static_cast<EventT<TimeoutInd>>(*e));
+         handleTimePassed(*static_cast<EventT<TimeoutInd> const&>(*e));
     }
     if (e->getMessageId()==DirectionInd::MESSAGE_ID){
-         handleTimePassed(*static_cast<EventT<DirectionInd>>(*e));
+         handleDirectionChange(*static_cast<EventT<DirectionInd> const&>(*e));
     }
     if (e->getMessageId()==FoodInd::MESSAGE_ID){
-         handleTimePassed(*static_cast<EventT<FoodInd>>(*e));
+         handleFoodPositionChange(*static_cast<EventT<FoodInd> const&>(*e));
     }
     if (e->getMessageId()==FoodResp::MESSAGE_ID){
-         handleTimePassed(*static_cast<EventT<FoodResp>>(*e));
+         handleNewFood(*static_cast<EventT<FoodResp> const&>(*e));
     }
    else
                     throw UnexpectedEventException();
