@@ -32,13 +32,18 @@ public:
     void receive(std::unique_ptr<Event> e) override;
 
 private:
+
     struct Segment
     {
         int x;
         int y;
         int ttl;
     };
-
+    Segment initializeNewHead(const Segment & segment);
+    void handleEventrequestedFood(int positionX,int positionY);
+    void nextMove(Segment & newHead);
+    void generateNewFood(int positionX,int positionY);
+    void checkCollisionFoodWithSnake(const FoodResp& e);
     IPort& m_displayPort;
     IPort& m_foodPort;
     IPort& m_scorePort;
