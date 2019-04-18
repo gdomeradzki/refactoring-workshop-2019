@@ -216,16 +216,16 @@ Controller::Segment Controller::getNewHead() const
 void Controller::receive(std::unique_ptr<Event> e)
 {
     try {
-        handleTimePassed(*reinterpret_cast<EventT<TimeoutInd> const&>(*e));
+        handleTimePassed(*dynamic_cast<EventT<TimeoutInd> const&>(*e));
     } catch (std::bad_cast&) {
         try {
-            handleDirectionChange(*reinterpret_cast<EventT<DirectionInd> const&>(*e));
+            handleDirectionChange(*dynamic_cast<EventT<DirectionInd> const&>(*e));
         } catch (std::bad_cast&) {
             try {
-                handleFoodPositionChange(*reinterpret_cast<EventT<FoodInd> const&>(*e));
+                handleFoodPositionChange(*dynamic_cast<EventT<FoodInd> const&>(*e));
             } catch (std::bad_cast&) {
                 try {
-                    handleNewFood(*reinterpret_cast<EventT<FoodResp> const&>(*e));
+                    handleNewFood(*dynamic_cast<EventT<FoodResp> const&>(*e));
                 } catch (std::bad_cast&) {
                     throw UnexpectedEventException();
                 }
