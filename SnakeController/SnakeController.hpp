@@ -52,7 +52,7 @@ private:
     bool requestedFood(std::unique_ptr<Event> e);
     DisplayInd clearOldFood(std::pair<int,int> m_foodPosition);
     bool checkSegments(Segment& newHead);
-   // void displaySegments();
+    void displaySegments();
     Segment getNewHead(Segment const& currentHead);
 
 };

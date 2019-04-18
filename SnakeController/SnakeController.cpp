@@ -100,7 +100,21 @@ bool Controller::requestedFood(std::unique_ptr<Event> e)
     }
     return requestedFoodCollidedWithSnake;
 }
+void Controller::displaySegments()
+{
+    for (auto &segment : m_segments)
+    {
+        if (not --segment.ttl)
+        {
+            DisplayInd l_evt;
+            l_evt.x = segment.x;
+            l_evt.y = segment.y;
+            l_evt.value = Cell_FREE;
 
+            m_displayPort.send(std::make_unique<EventT<DisplayInd>>(l_evt));
+        }
+    }
+}
 DisplayInd Controller::clearOldFood(std::pair<int,int> m_foodPosition)
 {
     DisplayInd clearOldFood;
@@ -146,18 +160,20 @@ void Controller::receive(std::unique_ptr<Event> e) //hiperprzekombinowana interp
             }
             else
             {
-                for (auto &segment : m_segments)
-                {
-                    if (not --segment.ttl)
-                    {
-                        DisplayInd l_evt;
-                        l_evt.x = segment.x;
-                        l_evt.y = segment.y;
-                        l_evt.value = Cell_FREE;
+                displaySegments();
+//
+                //for (auto &segment : m_segments)
+//                {
+//                    if (not --segment.ttl)
+//                    {
+//                        DisplayInd l_evt;
+//                        l_evt.x = segment.x;
+//                        l_evt.y = segment.y;
+//                        l_evt.value = Cell_FREE;
 
-                        m_displayPort.send(std::make_unique<EventT<DisplayInd>>(l_evt));
-                    }
-                }
+//                        m_displayPort.send(std::make_unique<EventT<DisplayInd>>(l_evt));
+//                    }
+//                }
             }
         }
 
