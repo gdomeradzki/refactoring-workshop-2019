@@ -63,8 +63,19 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
     }
 }
 
+
+bool Controller::checkNewHead(Segment newHead_)
+    {
+        newHead_.x < 0 or newHead_.y < 0 or;
+        newHead_.x >= m_mapDimension.first or;
+        newHead_.y >= m_mapDimension.second;
+       return true;
+   }
+
 void Controller::receive(std::unique_ptr<Event> e)
 {
+
+
     try {
         auto const& timerEvent = *dynamic_cast<EventT<TimeoutInd> const&>(*e);
 

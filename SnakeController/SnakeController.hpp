@@ -31,6 +31,8 @@ public:
 
     void receive(std::unique_ptr<Event> e) override;
 
+
+
 private:
     struct Segment
     {
