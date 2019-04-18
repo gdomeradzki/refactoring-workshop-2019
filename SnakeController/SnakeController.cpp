@@ -22,6 +22,7 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
       m_scorePort(p_scorePort),
       m_paused(false)
 {
+    snake = MySnake{};
     std::istringstream istr(p_config);
     char w, f, s, d;
 
@@ -36,16 +37,16 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
         istr >> d;
         switch (d) {
             case 'U':
-                m_currentDirection = Direction_UP;
+                snake.setDirection(Direction_UP);
                 break;
             case 'D':
-                m_currentDirection = Direction_DOWN;
+                snake.setDirection(Direction_DOWN);
                 break;
             case 'L':
-                m_currentDirection = Direction_LEFT;
+                snake.setDirection(Direction_LEFT);
                 break;
             case 'R':
-                m_currentDirection = Direction_RIGHT;
+                snake.setDirection(Direction_RIGHT);
                 break;
             default:
                 throw ConfigurationError();
@@ -55,7 +56,7 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
         while (length--) {
             Segment seg;
             istr >> seg.x >> seg.y;
-            m_segments.push_back(seg);
+            snake.getSegmentList().push_back(seg);
         }
     } else {
         throw ConfigurationError();
@@ -64,7 +65,7 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
 
 bool Controller::isSegmentAtPosition(int x, int y) const
 {
-    return m_segments.end() !=  std::find_if(m_segments.cbegin(), m_segments.cend(),
+    return snake.getSegmentList().end() !=  std::find_if(snake.getSegmentList().cbegin(), snake.getSegmentList().cend(),
         [x, y](auto const& segment){ return segment.x == x and segment.y == y; });
 }
 
@@ -132,7 +133,7 @@ Controller::Segment Controller::calculateNewHead() const
 
 void Controller::removeTailSegment()
 {
-    auto tail = m_segments.back();
+    auto tail = snake.getSegmentList().back();
 
     DisplayInd l_evt;
     l_evt.x = tail.x;
@@ -140,12 +141,12 @@ void Controller::removeTailSegment()
     l_evt.value = Cell_FREE;
     m_displayPort.send(std::make_unique<EventT<DisplayInd>>(l_evt));
 
-    m_segments.pop_back();
+    snake.getSegmentList().pop_back();
 }
 
 void Controller::addHeadSegment(Segment const& newHead)
 {
-    m_segments.push_front(newHead);
+    snake.getSegmentList().push_front(newHead);
 
     DisplayInd placeNewHead;
     placeNewHead.x = newHead.x;
@@ -184,14 +185,14 @@ void Controller::handleDirectionInd(std::unique_ptr<Event> e)
 {
     auto direction = payload<DirectionInd>(*e).direction;
 
-    if (perpendicular(m_currentDirection, direction)) {
-        m_currentDirection = direction;
+    if (perpendicular(snake.getDirection(), direction)) {
+        snake.setDirection(direction);
     }
 }
 
 void Controller::updateFoodPosition(int x, int y, std::function<void()> clearPolicy)
 {
-    if (isSegmentAtPosition(x, y)) {
+    if (isSegmentAtPosition(x, y) || isPositionOutsideMap(x, y)) {
         m_foodPort.send(std::make_unique<EventT<FoodReq>>());
         return;
     }

@@ -12,6 +12,41 @@ class IPort;
 
 namespace Snake
 {
+
+struct Segment
+{
+    int x;
+    int y;
+};
+
+class World
+{
+
+};
+
+class MySnake
+{
+public:
+    Direction getDirection() const
+    {
+        return m_currentDirection;
+    }
+
+    void setDirection(Direction newDirection)
+    {
+        m_currentDirection = newDirection;
+    }
+
+    std::list<Segment> getSegmentList()
+    {
+        return m_segments;
+    }
+
+private:
+    std::list<Segment> m_segments;
+    Direction m_currentDirection;
+};
+
 struct ConfigurationError : std::logic_error
 {
     ConfigurationError();
@@ -37,17 +72,10 @@ private:
     IPort& m_foodPort;
     IPort& m_scorePort;
 
+    MySnake snake;
+
     std::pair<int, int> m_mapDimension;
     std::pair<int, int> m_foodPosition;
-
-    struct Segment
-    {
-        int x;
-        int y;
-    };
-
-    std::list<Segment> m_segments;
-    Direction m_currentDirection;
 
     void handleTimeoutInd();
     void handleDirectionInd(std::unique_ptr<Event>);
