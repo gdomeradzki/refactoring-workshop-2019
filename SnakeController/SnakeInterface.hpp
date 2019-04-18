@@ -13,6 +13,12 @@ enum Direction
     Direction_RIGHT = 0b11
 };
 
+class Ind
+{
+public:
+    virtual void run();
+    virtual ~Ind() = default;
+};
 struct DirectionInd
 {
     static constexpr std::uint32_t MESSAGE_ID = 0x10;
