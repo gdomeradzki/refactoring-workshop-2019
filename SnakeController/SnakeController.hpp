@@ -12,6 +12,12 @@ class IPort;
 
 namespace Snake
 {
+struct Segment
+{
+    int x;
+    int y;
+};
+
 struct ConfigurationError : std::logic_error
 {
     ConfigurationError();
@@ -33,27 +39,13 @@ public:
     void receive(std::unique_ptr<Event> e) override;
 
 private:
+    SnakeBody snake;
+    World world;
     IPort& m_displayPort;
     IPort& m_foodPort;
     IPort& m_scorePort;
 
-    std::pair<int, int> m_mapDimension;
-    std::pair<int, int> m_foodPosition;
 
-    struct Segment
-    {
-        int x;
-        int y;
-    };
-
-    std::list<Segment> m_segments;
-    Direction m_currentDirection;
-
-    void handleTimeoutInd();
-    void handleDirectionInd(std::unique_ptr<Event>);
-    void handleFoodInd(std::unique_ptr<Event>);
-    void handleFoodResp(std::unique_ptr<Event>);
-    void handlePauseInd(std::unique_ptr<Event>);
 
     bool isSegmentAtPosition(int x, int y) const;
     Segment calculateNewHead() const;
@@ -61,14 +53,64 @@ private:
     void addHeadSegment(Segment const& newHead);
     void removeTailSegmentIfNotScored(Segment const& newHead);
     void removeTailSegment();
-
     bool isPositionOutsideMap(int x, int y) const;
 
     void updateFoodPosition(int x, int y, std::function<void()> clearPolicy);
     void sendClearOldFood();
     void sendPlaceNewFood(int x, int y);
 
+
+
+    void handleTimeoutInd();
+    void handleDirectionInd(std::unique_ptr<Event>);
+    void handleFoodInd(std::unique_ptr<Event>);
+    void handleFoodResp(std::unique_ptr<Event>);
+    void handlePauseInd(std::unique_ptr<Event>);
+
+
+
+
     bool m_paused;
 };
+
+class SnakeBody {
+
+
+    std::list<Segment> m_segments;
+    Direction m_currentDirection;
+
+
+public:
+    Direction getCurrentDirection()const{
+        return m_currentDirection;
+    };
+
+    std::list<Segment> getSegments()const{
+        return m_segments;
+    }
+
+};
+
+class World{
+
+
+
+    std::pair<int, int> m_mapDimension;
+    std::pair<int, int> m_foodPosition;
+
+public:
+    std::pair<int, int> getMapDimension()const{
+        return m_mapDimension;
+    }
+    std::pair<int, int> getFoodPosition()const{
+        return m_foodPosition;
+    }
+
+
+};
+
+
+
+
 
 } // namespace Snake
