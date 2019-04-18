@@ -22,6 +22,13 @@ struct UnexpectedEventException : std::runtime_error
     UnexpectedEventException();
 };
 
+class World
+{
+public:
+    std::pair<int, int> m_mapDimension;
+    std::pair<int, int> m_foodPosition;
+};
+
 class Controller : public IEventHandler
 {
 public:
@@ -37,8 +44,7 @@ private:
     IPort& m_foodPort;
     IPort& m_scorePort;
 
-    std::pair<int, int> m_mapDimension;
-    std::pair<int, int> m_foodPosition;
+    World m_World;
 
     struct Segment
     {
