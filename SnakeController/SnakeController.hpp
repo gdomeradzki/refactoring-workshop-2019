@@ -34,8 +34,9 @@ public:
     void placeNewFood(const FoodResp& requestedFood);
     void placeNewFood(const FoodInd& requestedFood);
     void clearOldFood();
-
-
+    bool checkCollision(const FoodInd& receivedFood);
+    bool checkCollision(const FoodResp& receivedFood);
+   
 private:
     struct Segment
     {

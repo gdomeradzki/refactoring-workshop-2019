@@ -62,7 +62,28 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
         throw ConfigurationError();
     }
 }
+bool Controller::checkCollision(const FoodInd& receivedFood){
 
+        bool requestedFoodCollidedWithSnake = false;
+        for (auto const& segment : m_segments) {
+            if (segment.x == receivedFood.x and segment.y == receivedFood.y) {
+                requestedFoodCollidedWithSnake = true;
+                break;
+            }
+        }
+        return requestedFoodCollidedWithSnake;
+}
+bool Controller::checkCollision(const FoodResp& receivedFood){
+
+        bool requestedFoodCollidedWithSnake = false;
+        for (auto const& segment : m_segments) {
+            if (segment.x == receivedFood.x and segment.y == receivedFood.y) {
+                requestedFoodCollidedWithSnake = true;
+                break;
+            }
+        }
+        return requestedFoodCollidedWithSnake;
+    }
 void Controller::receive(std::unique_ptr<Event> e)
 {
     try {
@@ -135,15 +156,9 @@ void Controller::receive(std::unique_ptr<Event> e)
             try {
                 auto receivedFood = *dynamic_cast<EventT<FoodInd> const&>(*e);
 
-                bool requestedFoodCollidedWithSnake = false;
-                for (auto const& segment : m_segments) {
-                    if (segment.x == receivedFood.x and segment.y == receivedFood.y) {
-                        requestedFoodCollidedWithSnake = true;
-                        break;
-                    }
-                }
 
-                if (requestedFoodCollidedWithSnake) {
+
+                if (checkCollision(receivedFood)) {
                     m_foodPort.send(std::make_unique<EventT<FoodReq>>());
                 } else {
                     clearOldFood();
@@ -157,15 +172,9 @@ void Controller::receive(std::unique_ptr<Event> e)
                 try {
                     auto requestedFood = *dynamic_cast<EventT<FoodResp> const&>(*e);
 
-                    bool requestedFoodCollidedWithSnake = false;
-                    for (auto const& segment : m_segments) {
-                        if (segment.x == requestedFood.x and segment.y == requestedFood.y) {
-                            requestedFoodCollidedWithSnake = true;
-                            break;
-                        }
-                    }
 
-                    if (requestedFoodCollidedWithSnake) {
+
+                    if (checkCollision(requestedFood)) {
                         m_foodPort.send(std::make_unique<EventT<FoodReq>>());
                     } else {
                             placeNewFood(requestedFood);
@@ -179,6 +188,7 @@ void Controller::receive(std::unique_ptr<Event> e)
         }
     }
 }
+
 void Controller::placeNewFood(const FoodResp& requestedFood){
     DisplayInd placeNewFood;
     placeNewFood.x = requestedFood.x;
