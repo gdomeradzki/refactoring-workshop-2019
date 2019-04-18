@@ -32,6 +32,7 @@ public:
     void receive(std::unique_ptr<Event> e) override;
 
 private:
+    void pauseHandler();
     void handleTimePassed(const TimeoutInd&);
     void handleDirectionChange(const DirectionInd&);
     void handleFoodPositionChange(const FoodInd& receivedFood);
@@ -65,6 +66,8 @@ private:
 
     Direction m_currentDirection;
     std::list<Segment> m_segments;
+
+    bool paused;
 };
 
 } // namespace Snake
