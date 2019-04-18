@@ -29,6 +29,8 @@ public:
     Controller(Controller const& p_rhs) = delete;
     Controller& operator=(Controller const& p_rhs) = delete;
 
+    void handlerEventRequestedFood(receivedFood);
+
     void receive(std::unique_ptr<Event> e) override;
 
 private:
