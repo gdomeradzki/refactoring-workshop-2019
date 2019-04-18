@@ -32,12 +32,19 @@ public:
     void receive(std::unique_ptr<Event> e) override;
 
 private:
+
     struct Segment
     {
         int x;
         int y;
         int ttl;
     };
+
+    bool checkIfLost(Segment& newHead);
+    void displayNewHead(Segment& newHead, DisplayInd& placeNewHead);
+    void eraseSegment();
+    void moveSnake(Segment& newHead, bool& ifLost);
+    void checkIfSnakeAte(FoodInd& receivedFood, bool& requestedFoodCollidedWithSnake);
 
     IPort& m_displayPort;
     IPort& m_foodPort;
