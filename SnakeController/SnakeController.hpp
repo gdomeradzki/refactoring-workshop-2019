@@ -25,7 +25,7 @@ struct UnexpectedEventException : std::runtime_error
 class Controller : public IEventHandler
 {
 public:
-    Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePort, std::string const& p_config);
+    Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePort, std::string const& p_config, Food food);
 
     Controller(Controller const& p_rhs) = delete;
     Controller& operator=(Controller const& p_rhs) = delete;
@@ -34,17 +34,10 @@ public:
 
 private:
     IPort& m_displayPort;
-    IPort& m_foodPort;
     IPort& m_scorePort;
 
     std::pair<int, int> m_mapDimension;
-    std::pair<int, int> m_foodPosition;
-
-    struct Segment
-    {
-        int x;
-        int y;
-    };
+    
 
     std::list<Segment> m_segments;
     Direction m_currentDirection;
@@ -69,6 +62,30 @@ private:
     void sendPlaceNewFood(int x, int y);
 
     bool m_paused;
+
+    Food food;
+    Segment segment;
+};
+
+class Food
+{
+    IPort& m_foodPort;
+    std::pair<int, int> m_foodPosition;
+
+public:
+    Food();
+    auto getFoodPort() const;
+    auto getFoodPosition() const;
+
+};
+
+class Segment
+{
+
+public:
+    int x;
+    int y;
+
 };
 
 } // namespace Snake

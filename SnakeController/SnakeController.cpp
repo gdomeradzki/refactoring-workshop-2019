@@ -20,7 +20,8 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
     : m_displayPort(p_displayPort),
       m_foodPort(p_foodPort),
       m_scorePort(p_scorePort),
-      m_paused(false)
+      m_paused(false),
+      food(),
 {
     std::istringstream istr(p_config);
     char w, f, s, d;
@@ -31,6 +32,7 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
 
     if (w == 'W' and f == 'F' and s == 'S') {
         m_mapDimension = std::make_pair(width, height);
+        //setfoodposition
         m_foodPosition = std::make_pair(foodX, foodY);
 
         istr >> d;
@@ -75,6 +77,7 @@ bool Controller::isPositionOutsideMap(int x, int y) const
 
 void Controller::sendPlaceNewFood(int x, int y)
 {
+    //setfoodposiotion
     m_foodPosition = std::make_pair(x, y);
 
     DisplayInd placeNewFood;
@@ -88,6 +91,7 @@ void Controller::sendPlaceNewFood(int x, int y)
 void Controller::sendClearOldFood()
 {
     DisplayInd clearOldFood;
+    //getfoodposition
     clearOldFood.x = m_foodPosition.first;
     clearOldFood.y = m_foodPosition.second;
     clearOldFood.value = Cell_FREE;
