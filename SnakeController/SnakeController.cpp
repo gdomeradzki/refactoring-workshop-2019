@@ -63,40 +63,93 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
     }
 }
 
-void Controller::receive(std::unique_ptr<Event> e)
+Snake::Segment Controller::getNewHead(Segment const& currentHead)
+{
+    Segment newHead;
+    newHead.x = currentHead.x + ((m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
+    newHead.y = currentHead.y + (not (m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
+    newHead.ttl = currentHead.ttl;
+    return newHead;
+}
+bool Controller::checkSegments(Segment& newHead)
+{
+    bool lost = false;
+
+    for (auto segment : m_segments)
+    {
+        if (segment.x == newHead.x and segment.y == newHead.y)
+        {
+            m_scorePort.send(std::make_unique<EventT<LooseInd>>());
+            lost = true;
+            break;
+        }
+    }
+    return lost;
+}
+bool Controller::requestedFood(std::unique_ptr<Event> e)
+{
+    auto receivedFood = *dynamic_cast<EventT<FoodInd> const&>(*e);
+    bool requestedFoodCollidedWithSnake = false;
+    for (auto const& segment : m_segments)
+    {
+        if (segment.x == receivedFood.x and segment.y == receivedFood.y)
+        {
+            requestedFoodCollidedWithSnake = true;
+            break;
+        }
+    }
+    return requestedFoodCollidedWithSnake;
+}
+
+DisplayInd Controller::clearOldFood(std::pair<int,int> m_foodPosition)
+{
+    DisplayInd clearOldFood;
+    clearOldFood.x = m_foodPosition.first;
+    clearOldFood.y = m_foodPosition.second;
+    clearOldFood.value = Cell_FREE;
+    return clearOldFood;
+}
+void Controller::receive(std::unique_ptr<Event> e) //hiperprzekombinowana interpretacja snejka do przerobienia 1. zejsc ponizej 10 CCN
 {
     try {
         auto const& timerEvent = *dynamic_cast<EventT<TimeoutInd> const&>(*e);
 
         Segment const& currentHead = m_segments.front();
 
-        Segment newHead;
-        newHead.x = currentHead.x + ((m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
-        newHead.y = currentHead.y + (not (m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
-        newHead.ttl = currentHead.ttl;
+        Segment newHead = getNewHead(currentHead);
 
-        bool lost = false;
 
-        for (auto segment : m_segments) {
-            if (segment.x == newHead.x and segment.y == newHead.y) {
-                m_scorePort.send(std::make_unique<EventT<LooseInd>>());
-                lost = true;
-                break;
-            }
-        }
+        bool lost = checkSegments(newHead);
 
-        if (not lost) {
-            if (std::make_pair(newHead.x, newHead.y) == m_foodPosition) {
+//        for (auto segment : m_segments)
+//        {
+//            if (segment.x == newHead.x and segment.y == newHead.y)
+//            {
+//                m_scorePort.send(std::make_unique<EventT<LooseInd>>());
+//                lost = true;
+//                break;
+//            }
+//        }
+
+        if (not lost)
+        {
+            if (std::make_pair(newHead.x, newHead.y) == m_foodPosition)
+            {
                 m_scorePort.send(std::make_unique<EventT<ScoreInd>>());
                 m_foodPort.send(std::make_unique<EventT<FoodReq>>());
             } else if (newHead.x < 0 or newHead.y < 0 or
                        newHead.x >= m_mapDimension.first or
-                       newHead.y >= m_mapDimension.second) {
+                       newHead.y >= m_mapDimension.second)
+            {
                 m_scorePort.send(std::make_unique<EventT<LooseInd>>());
                 lost = true;
-            } else {
-                for (auto &segment : m_segments) {
-                    if (not --segment.ttl) {
+            }
+            else
+            {
+                for (auto &segment : m_segments)
+                {
+                    if (not --segment.ttl)
+                    {
                         DisplayInd l_evt;
                         l_evt.x = segment.x;
                         l_evt.y = segment.y;
@@ -135,22 +188,22 @@ void Controller::receive(std::unique_ptr<Event> e)
             try {
                 auto receivedFood = *dynamic_cast<EventT<FoodInd> const&>(*e);
 
-                bool requestedFoodCollidedWithSnake = false;
-                for (auto const& segment : m_segments) {
-                    if (segment.x == receivedFood.x and segment.y == receivedFood.y) {
-                        requestedFoodCollidedWithSnake = true;
-                        break;
-                    }
-                }
-
+//                bool requestedFoodCollidedWithSnake = false;
+//                for (auto const& segment : m_segments) {
+//                    if (segment.x == receivedFood.x and segment.y == receivedFood.y) {
+//                        requestedFoodCollidedWithSnake = true;
+//                        break;
+//                    }
+//                }
+                bool requestedFoodCollidedWithSnake = requestedFood(std::move(e));; // movem to ?
                 if (requestedFoodCollidedWithSnake) {
                     m_foodPort.send(std::make_unique<EventT<FoodReq>>());
                 } else {
-                    DisplayInd clearOldFood;
-                    clearOldFood.x = m_foodPosition.first;
-                    clearOldFood.y = m_foodPosition.second;
-                    clearOldFood.value = Cell_FREE;
-                    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearOldFood));
+//                    DisplayInd clearOldFood;
+//                    clearOldFood.x = m_foodPosition.first;
+//                    clearOldFood.y = m_foodPosition.second;
+//                    clearOldFood.value = Cell_FREE;
+                    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearOldFood(m_foodPosition)));
 
                     DisplayInd placeNewFood;
                     placeNewFood.x = receivedFood.x;

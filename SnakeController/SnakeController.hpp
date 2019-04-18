@@ -20,7 +20,12 @@ struct UnexpectedEventException : std::runtime_error
 {
     UnexpectedEventException();
 };
-
+struct Segment
+{
+    int x;
+    int y;
+    int ttl;
+};
 class Controller : public IEventHandler
 {
 public:
@@ -32,12 +37,7 @@ public:
     void receive(std::unique_ptr<Event> e) override;
 
 private:
-    struct Segment
-    {
-        int x;
-        int y;
-        int ttl;
-    };
+
 
     IPort& m_displayPort;
     IPort& m_foodPort;
@@ -48,6 +48,13 @@ private:
 
     Direction m_currentDirection;
     std::list<Segment> m_segments;
+
+    bool requestedFood(std::unique_ptr<Event> e);
+    DisplayInd clearOldFood(std::pair<int,int> m_foodPosition);
+    bool checkSegments(Segment& newHead);
+   // void displaySegments();
+    Segment getNewHead(Segment const& currentHead);
+
 };
 
 } // namespace Snake
