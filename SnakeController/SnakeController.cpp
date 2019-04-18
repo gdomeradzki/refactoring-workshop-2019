@@ -215,14 +215,42 @@ Controller::Segment Controller::getNewHead() const
 
 void Controller::receive(std::unique_ptr<Event> e)
 {
+
     switch(e->getMessageId())
     {
-        case TimeoutInd::MESSAGE_ID: return handleTimePassed(*static_cast<EventT<TimeoutInd> const&>(*e));
-        case DirectionInd::MESSAGE_ID: return handleDirectionChange(*static_cast<EventT<DirectionInd> const&>(*e));
-        case FoodInd::MESSAGE_ID: return handleFoodPositionChange(*static_cast<EventT<FoodInd> const&>(*e));
-        case FoodResp::MESSAGE_ID: return handleNewFood(*static_cast<EventT<FoodResp> const&>(*e));
+        case TimeoutInd::MESSAGE_ID:
+        if (!is_pause)
+        return handleTimePassed(*static_cast<EventT<TimeoutInd> const&>(*e));
+
+        case DirectionInd::MESSAGE_ID:
+        {   if (!is_pause)
+        return handleDirectionChange(*static_cast<EventT<DirectionInd> const&>(*e));
+        }
+
+        case FoodInd::MESSAGE_ID:
+        {
+        if (!is_pause)
+        return handleFoodPositionChange(*static_cast<EventT<FoodInd> const&>(*e));
+        }
+        case FoodResp::MESSAGE_ID:
+        if (!is_pause)
+        return handleNewFood(*static_cast<EventT<FoodResp> const&>(*e));
+
+        case PauseInd::MESSAGE_ID:
+        return handlePause(*static_cast<EventT<PauseInd> const&>(*e));
+
         default: throw UnexpectedEventException();
     };
+
+}
+
+
+void Controller::handlePause(const PauseInd& pause)
+{
+    if(!is_pause)
+    is_pause = true;
+    else
+       is_pause = false;
 }
 
 } // namespace Snake
