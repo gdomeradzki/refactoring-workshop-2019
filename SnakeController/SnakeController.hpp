@@ -30,12 +30,14 @@ public:
     Controller& operator=(Controller const& p_rhs) = delete;
 
     void receive(std::unique_ptr<Event> e) override;
+    
 
 private:
     void handleTimePassed(const TimeoutInd&);
     void handleDirectionChange(const DirectionInd&);
     void handleFoodPositionChange(const FoodInd& receivedFood);
     void handleNewFood(const FoodResp& requestedFood);
+    void Controller::handlePause();
 
     struct Segment
     {
@@ -65,6 +67,7 @@ private:
 
     Direction m_currentDirection;
     std::list<Segment> m_segments;
+    bool pause;
 };
 
 } // namespace Snake

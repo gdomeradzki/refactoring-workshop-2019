@@ -24,7 +24,7 @@ public:
 
     std::uint32_t getMessageId() const override { return T::MESSAGE_ID; };
     std::unique_ptr<Event> clone() const override { return std::make_unique<EventT<T>>(*m_payload); }
-
+    //
     T * const operator->() noexcept { return m_payload.get(); }
     T const * const operator->() const noexcept { return m_payload.get(); }
 
