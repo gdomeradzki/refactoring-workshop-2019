@@ -12,6 +12,7 @@ class IPort;
 
 namespace Snake
 {
+
 struct ConfigurationError : std::logic_error
 {
     ConfigurationError();
@@ -20,6 +21,23 @@ struct ConfigurationError : std::logic_error
 struct UnexpectedEventException : std::runtime_error
 {
     UnexpectedEventException();
+};
+
+struct Segment
+{
+    int x;
+    int y;
+};
+
+struct World
+{
+    std::pair<int, int> m_mapDimension;
+    std::pair<int, int> m_foodPosition;
+};
+struct Body
+{
+    std::list<Segment> m_segments;
+    Direction m_currentDirection;
 };
 
 class Controller : public IEventHandler
@@ -37,19 +55,14 @@ private:
     IPort& m_foodPort;
     IPort& m_scorePort;
 
-    std::pair<int, int> m_mapDimension;
-    std::pair<int, int> m_foodPosition;
+    // std::pair<int, int> m_mapDimension;
+    // std::pair<int, int> m_foodPosition;
 
-    struct Segment
-    {
-        int x;
-        int y;
-    };
-
-    std::list<Segment> m_segments;
-    Direction m_currentDirection;
-
-    void handleTimeoutInd();
+    World world;
+    Body body;
+    
+    std::pair<int, int>& get_mapDimension() const;
+    
     void handleDirectionInd(std::unique_ptr<Event>);
     void handleFoodInd(std::unique_ptr<Event>);
     void handleFoodResp(std::unique_ptr<Event>);
@@ -57,7 +70,7 @@ private:
 
     bool isSegmentAtPosition(int x, int y) const;
     Segment calculateNewHead() const;
-    void updateSegmentsIfSuccessfullMove(Segment const& newHead);
+    
     void addHeadSegment(Segment const& newHead);
     void removeTailSegmentIfNotScored(Segment const& newHead);
     void removeTailSegment();
