@@ -31,6 +31,9 @@ public:
 
     void receive(std::unique_ptr<Event> e) override;
 
+
+    void foodHandler2(std::unique_ptr<Event> e);
+
 private:
     struct Segment
     {
@@ -48,6 +51,10 @@ private:
 
     Direction m_currentDirection;
     std::list<Segment> m_segments;
+
+
+    void foodHandler(std::unique_ptr<Event> e);
+    void checkForSelfCollision(bool lost, Segment newHead);
 };
 
 } // namespace Snake
