@@ -214,24 +214,33 @@ Controller::Segment Controller::getNewHead() const
 }
 
 void Controller::receive(std::unique_ptr<Event> e)
-{
-    try {
-        handleTimePassed(*dynamic_cast<EventT<TimeoutInd> const&>(*e));
-    } catch (std::bad_cast&) {
-        try {
-            handleDirectionChange(*dynamic_cast<EventT<DirectionInd> const&>(*e));
-        } catch (std::bad_cast&) {
-            try {
-                handleFoodPositionChange(*dynamic_cast<EventT<FoodInd> const&>(*e));
-            } catch (std::bad_cast&) {
-                try {
-                    handleNewFood(*dynamic_cast<EventT<FoodResp> const&>(*e));
-                } catch (std::bad_cast&) {
-                    throw UnexpectedEventException();
-                }
-            }
-        }
+{   
+    auto messageId = e->getMessageId();
+    if(messageId == TimeoutInd::MESSAGE_ID)
+    {
+        handleTimePassed(*static_cast<EventT<TimeoutInd> const&>(*e));
+        return;
     }
+    else if(messageId == DirectionInd::MESSAGE_ID)
+    {
+        handleDirectionChange(*static_cast<EventT<DirectionInd> const&>(*e));
+        return;
+    }
+    else if(messageId == FoodInd::MESSAGE_ID)
+    {
+        handleFoodPositionChange(*static_cast<EventT<FoodInd> const&>(*e));
+        return;
+    }
+    else if(messageId == FoodResp::MESSAGE_ID)
+    {
+        handleNewFood(*static_cast<EventT<FoodResp> const&>(*e));
+        return;
+    }
+    else
+    {
+        throw UnexpectedEventException();
+    }
+
 }
 
 } // namespace Snake
