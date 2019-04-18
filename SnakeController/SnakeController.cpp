@@ -172,7 +172,7 @@ void Controller::receive(std::unique_ptr<Event> e)
                             break;
                         }
                     }
-
+cvfg
                     if (requestedFoodCollidedWithSnake) {
                         m_foodPort.send(std::make_unique<EventT<FoodReq>>());
                     } else {
