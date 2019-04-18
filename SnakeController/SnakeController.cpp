@@ -101,10 +101,13 @@ void Controller::handleTimePassed(const TimeoutInd&)
 
 void Controller::handleDirectionChange(const DirectionInd& directionInd)
 {
+    if(!isStopped)
+    {
     auto direction = directionInd.direction;
 
     if ((m_currentDirection & 0b01) != (direction & 0b01)) {
         m_currentDirection = direction;
+    }
     }
 }
 
