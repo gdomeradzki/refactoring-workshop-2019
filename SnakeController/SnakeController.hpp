@@ -22,6 +22,33 @@ struct UnexpectedEventException : std::runtime_error
     UnexpectedEventException();
 };
 
+struct Segment
+{
+    int x;
+    int y;
+};
+
+struct SnakeBody
+{
+    SnakeBody() {}
+
+    Direction m_currentDirection;
+    std::list<Segment> m_segments;
+};
+
+class Map
+{
+public:
+    Map() {}
+    void setM_mapDimension(std::pair<int, int>);
+    std::pair<int, int> getM_mapDimension();
+    void setM_foodPosition(std::pair<int, int>);
+    std::pair<int, int> getM_foodPosition();
+private:
+    std::pair<int, int> m_mapDimension;
+    std::pair<int, int> m_foodPosition;
+};
+
 class Controller : public IEventHandler
 {
 public:
@@ -37,28 +64,20 @@ private:
     IPort& m_foodPort;
     IPort& m_scorePort;
 
-    std::pair<int, int> m_mapDimension;
-    std::pair<int, int> m_foodPosition;
+    Map map;
 
-    struct Segment
-    {
-        int x;
-        int y;
-    };
-
-    std::list<Segment> m_segments;
-    Direction m_currentDirection;
+    SnakeBody snakeBody;
 
     void handleTimeoutInd();
     void handleDirectionInd(std::unique_ptr<Event>);
     void handleFoodInd(std::unique_ptr<Event>);
     void handleFoodResp(std::unique_ptr<Event>);
     void handlePauseInd(std::unique_ptr<Event>);
-
+    void addHeadSegment(Segment const& newHead);
     bool isSegmentAtPosition(int x, int y) const;
     Segment calculateNewHead() const;
     void updateSegmentsIfSuccessfullMove(Segment const& newHead);
-    void addHeadSegment(Segment const& newHead);
+
     void removeTailSegmentIfNotScored(Segment const& newHead);
     void removeTailSegment();
 
@@ -71,4 +90,8 @@ private:
     bool m_paused;
 };
 
+
+
 } // namespace Snake
+
+
