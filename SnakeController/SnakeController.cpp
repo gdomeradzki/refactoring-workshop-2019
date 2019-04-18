@@ -63,6 +63,17 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
     }
 }
 
+void Controller::segmentMover(bool & lost, Segment& head)
+{
+        for (auto segment : m_segments) {
+            if (segment.x == head.x and segment.y == head.y) {
+                m_scorePort.send(std::make_unique<EventT<LooseInd>>());
+                lost = true;
+                break;
+            }
+        }
+}
+
 void Controller::receive(std::unique_ptr<Event> e)
 {
     try {
@@ -77,13 +88,7 @@ void Controller::receive(std::unique_ptr<Event> e)
 
         bool lost = false;
 
-        for (auto segment : m_segments) {
-            if (segment.x == newHead.x and segment.y == newHead.y) {
-                m_scorePort.send(std::make_unique<EventT<LooseInd>>());
-                lost = true;
-                break;
-            }
-        }
+        segmentMover(lost, newHead);
 
         if (not lost) {
             if (std::make_pair(newHead.x, newHead.y) == m_foodPosition) {
@@ -134,8 +139,8 @@ void Controller::receive(std::unique_ptr<Event> e)
         } catch (std::bad_cast&) {
             try {
                 auto receivedFood = *dynamic_cast<EventT<FoodInd> const&>(*e);
-
                 bool requestedFoodCollidedWithSnake = false;
+
                 for (auto const& segment : m_segments) {
                     if (segment.x == receivedFood.x and segment.y == receivedFood.y) {
                         requestedFoodCollidedWithSnake = true;

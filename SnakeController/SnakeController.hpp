@@ -31,6 +31,7 @@ public:
 
     void receive(std::unique_ptr<Event> e) override;
 
+
 private:
     struct Segment
     {
@@ -38,6 +39,8 @@ private:
         int y;
         int ttl;
     };
+
+    void segmentMover(bool & lost, Segment& head);
 
     IPort& m_displayPort;
     IPort& m_foodPort;
