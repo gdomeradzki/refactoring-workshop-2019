@@ -30,6 +30,10 @@ public:
     Controller& operator=(Controller const& p_rhs) = delete;
 
     void receive(std::unique_ptr<Event> e) override;
+    void placeNewFood(const auto& food);
+    void requestedFoodHandler(const auto& requestedFood);
+    void timeEventHandler(const auto& timerEvent);
+    void clearOldFood(const auto& food);
 
 private:
     struct Segment
