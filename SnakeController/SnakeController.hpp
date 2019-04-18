@@ -40,13 +40,8 @@ private:
     std::pair<int, int> m_mapDimension;
     std::pair<int, int> m_foodPosition;
 
-    struct Segment
-    {
-        int x;
-        int y;
-    };
 
-    std::list<Segment> m_segments;
+
     Direction m_currentDirection;
 
     void handleTimeoutInd();
@@ -55,13 +50,6 @@ private:
     void handleFoodResp(std::unique_ptr<Event>);
     void handlePauseInd(std::unique_ptr<Event>);
 
-    bool isSegmentAtPosition(int x, int y) const;
-    Segment calculateNewHead() const;
-    void updateSegmentsIfSuccessfullMove(Segment const& newHead);
-    void addHeadSegment(Segment const& newHead);
-    void removeTailSegmentIfNotScored(Segment const& newHead);
-    void removeTailSegment();
-
     bool isPositionOutsideMap(int x, int y) const;
 
     void updateFoodPosition(int x, int y, std::function<void()> clearPolicy);
@@ -69,6 +57,33 @@ private:
     void sendPlaceNewFood(int x, int y);
 
     bool m_paused;
+};
+
+class SnakeSegment
+{
+    struct Segment
+    {
+        int x;
+        int y;
+    };
+    std::list<Segment> m_segments;
+
+    bool isSegmentAtPosition(int x, int y) const;
+    Segment calculateNewHead() const;
+    void updateSegmentsIfSuccessfullMove(Segment const& newHead);
+    void addHeadSegment(Segment const& newHead);
+    void removeTailSegmentIfNotScored(Segment const& newHead);
+    void removeTailSegment();
+
+public:
+};
+
+class Map
+{
+    std::pair<int, int> m_mapDimension;
+public:
+    std::pair<int, int> getMapSize();
+    void setMapSize(int x, int y);
 };
 
 } // namespace Snake
