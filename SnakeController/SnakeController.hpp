@@ -43,7 +43,7 @@ private:
     void handleEventrequestedFood(int positionX,int positionY);
     void nextMove(Segment & newHead);
     void generateNewFood(int positionX,int positionY);
-    void checkCollisionFoodWithSnake(const FoodResp& e);
+    void checkCollisionFoodWithSnake(std::unique_ptr<Event> e);
     IPort& m_displayPort;
     IPort& m_foodPort;
     IPort& m_scorePort;

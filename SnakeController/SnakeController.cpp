@@ -135,27 +135,7 @@ void Controller::receive(std::unique_ptr<Event> e)
                 m_foodPosition = std::make_pair(receivedFood.x, receivedFood.y);
 
             } catch (std::bad_cast&) {
-                try {
-                    auto requestedFood = *dynamic_cast<EventT<FoodResp> const&>(*e);
-
-                    bool requestedFoodCollidedWithSnake = false;
-                    for (auto const& segment : m_segments) {
-                        if (segment.x == requestedFood.x and segment.y == requestedFood.y) {
-                            requestedFoodCollidedWithSnake = true;
-                            break;
-                        }
-                    }
-
-                    if (requestedFoodCollidedWithSnake) {
-                        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
-                    } else {
-                        generateNewFood(requestedFood.x,requestedFood.y);
-                    }
-
-                    m_foodPosition = std::make_pair(requestedFood.x, requestedFood.y);
-                } catch (std::bad_cast&) {
-                    throw UnexpectedEventException();
-                }
+                checkCollisionFoodWithSnake(std::move(e));
             }
         }
     }
@@ -209,8 +189,28 @@ void Controller::receive(std::unique_ptr<Event> e)
         m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
     }
 
-    void Controller::checkCollisionFoodWithSnake(const FoodResp& e) {
+    void Controller::checkCollisionFoodWithSnake(std::unique_ptr<Event> e) {
+        try {
+            auto requestedFood = *dynamic_cast<EventT<FoodResp> const&>(*e);
 
+            bool requestedFoodCollidedWithSnake = false;
+            for (auto const& segment : m_segments) {
+                if (segment.x == requestedFood.x and segment.y == requestedFood.y) {
+                    requestedFoodCollidedWithSnake = true;
+                    break;
+                }
+            }
+
+            if (requestedFoodCollidedWithSnake) {
+                m_foodPort.send(std::make_unique<EventT<FoodReq>>());
+            } else {
+                generateNewFood(requestedFood.x,requestedFood.y);
+            }
+
+            m_foodPosition = std::make_pair(requestedFood.x, requestedFood.y);
+        } catch (std::bad_cast&) {
+            throw UnexpectedEventException();
+        }
     }
 
 } // namespace Snake
