@@ -45,7 +45,9 @@ private:
     void eraseSegment();
     void moveSnake(Segment& newHead, bool& ifLost);
     void checkIfSnakeAte(FoodInd& receivedFood, bool& requestedFoodCollidedWithSnake);
+    void checkIfSnakeAte(FoodResp& receivedFood, bool& requestedFoodCollidedWithSnake);
     void displayFood(bool& requestedFoodCollidedWithSnake, FoodInd& receivedFood);
+    void growSnake(FoodResp& requestedFood, bool& ifCollided);
 
     IPort& m_displayPort;
     IPort& m_foodPort;

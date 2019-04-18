@@ -106,6 +106,19 @@ void Controller::moveSnake(Segment& newHead, bool& ifLost)
     }
 }
 
+void Controller::growSnake(FoodResp& requestedFood, bool& ifCollided)
+{
+    if (ifCollided) {
+        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
+    } else {
+        DisplayInd placeNewFood;
+        placeNewFood.x = requestedFood.x;
+        placeNewFood.y = requestedFood.y;
+        placeNewFood.value = Cell_FOOD;
+        m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
+    }
+}
+
 void Controller::eraseSegment()
 {
     m_segments.erase(
@@ -117,6 +130,16 @@ void Controller::eraseSegment()
 }
 
 void Controller::checkIfSnakeAte(FoodInd& receivedFood, bool& requestedFoodCollidedWithSnake)
+{
+    for (auto const& segment : m_segments) {
+        if (segment.x == receivedFood.x and segment.y == receivedFood.y) {
+            requestedFoodCollidedWithSnake = true;
+            break;
+        }
+    }
+}
+
+void Controller::checkIfSnakeAte(FoodResp& receivedFood, bool& requestedFoodCollidedWithSnake)
 {
     for (auto const& segment : m_segments) {
         if (segment.x == receivedFood.x and segment.y == receivedFood.y) {
@@ -196,22 +219,9 @@ void Controller::receive(std::unique_ptr<Event> e)
                     auto requestedFood = *dynamic_cast<EventT<FoodResp> const&>(*e);
 
                     bool requestedFoodCollidedWithSnake = false;
-                    for (auto const& segment : m_segments) {
-                        if (segment.x == requestedFood.x and segment.y == requestedFood.y) {
-                            requestedFoodCollidedWithSnake = true;
-                            break;
-                        }
-                    }
+                    checkIfSnakeAte(requestedFood, requestedFoodCollidedWithSnake);
 
-                    if (requestedFoodCollidedWithSnake) {
-                        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
-                    } else {
-                        DisplayInd placeNewFood;
-                        placeNewFood.x = requestedFood.x;
-                        placeNewFood.y = requestedFood.y;
-                        placeNewFood.value = Cell_FOOD;
-                        m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
-                    }
+                    growSnake(requestedFood, requestedFoodCollidedWithSnake);
 
                     m_foodPosition = std::make_pair(requestedFood.x, requestedFood.y);
                 } catch (std::bad_cast&) {
