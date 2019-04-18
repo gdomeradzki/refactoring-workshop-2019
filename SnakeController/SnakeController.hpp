@@ -38,11 +38,10 @@ private:
         int y;
         int ttl;
     };
-
     IPort& m_displayPort;
     IPort& m_foodPort;
     IPort& m_scorePort;
-
+    void handleReceivedFood(FoodInd receivedFood);
     std::pair<int, int> m_mapDimension;
     std::pair<int, int> m_foodPosition;
 
