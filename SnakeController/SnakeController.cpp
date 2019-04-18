@@ -183,6 +183,9 @@ void Controller::receive(std::unique_ptr<Event> e)
                         m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
                     }
 
+
+
+
                     m_foodPosition = std::make_pair(requestedFood.x, requestedFood.y);
                 } catch (std::bad_cast&) {
                     throw UnexpectedEventException();
