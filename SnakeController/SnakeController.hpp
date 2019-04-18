@@ -10,8 +10,22 @@
 class Event;
 class IPort;
 
+
+
 namespace Snake
 {
+struct Segment
+{
+    int x;
+    int y;
+};
+class RSnake{
+public:
+    std::list<Segment> m_segments;
+
+};
+
+
 struct ConfigurationError : std::logic_error
 {
     ConfigurationError();
@@ -40,15 +54,10 @@ private:
     std::pair<int, int> m_mapDimension;
     std::pair<int, int> m_foodPosition;
 
-    struct Segment
-    {
-        int x;
-        int y;
-    };
 
-    std::list<Segment> m_segments;
+
+    RSnake snake;
     Direction m_currentDirection;
-
     void handleTimeoutInd();
     void handleDirectionInd(std::unique_ptr<Event>);
     void handleFoodInd(std::unique_ptr<Event>);
@@ -72,3 +81,13 @@ private:
 };
 
 } // namespace Snake
+
+
+class SnakeWorld{
+
+};
+
+
+
+
+
