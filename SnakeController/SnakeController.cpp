@@ -236,9 +236,9 @@ void Controller::receive(std::unique_ptr<Event> e)
             {
                 handleNewFood(*static_cast<EventT<FoodResp> const&>(*e));
             }
-           // else {
-           //     throw std::bad_cast("");
-           // }
+            else {
+              throw ;
+       }
             } catch (std::bad_cast&) {
                 throw UnexpectedEventException();
             }
