@@ -7,11 +7,35 @@
 #include "IEventHandler.hpp"
 #include "SnakeInterface.hpp"
 
+
 class Event;
 class IPort;
 
 namespace Snake
 {
+
+class World
+{
+public:
+    void setFoodPosition(std::pair<int, int> x)
+    {
+        m_foodPosition = x;
+    }
+
+    std::pair<int, int> getFoodPosition() const
+    {
+        return m_foodPosition;
+    }
+
+     std::pair<int, int> m_mapDimension;
+private:
+    std::pair<int, int> m_foodPosition;
+
+
+};
+
+
+
 struct ConfigurationError : std::logic_error
 {
     ConfigurationError();
@@ -31,14 +55,15 @@ public:
     Controller& operator=(Controller const& p_rhs) = delete;
 
     void receive(std::unique_ptr<Event> e) override;
-
+    World map;
 private:
     IPort& m_displayPort;
     IPort& m_foodPort;
     IPort& m_scorePort;
 
-    std::pair<int, int> m_mapDimension;
-    std::pair<int, int> m_foodPosition;
+
+    //std::pair<int, int> m_mapDimension;
+    //std::pair<int, int> m_foodPosition;
 
     struct Segment
     {
@@ -71,4 +96,8 @@ private:
     bool m_paused;
 };
 
+
+
 } // namespace Snake
+
+
