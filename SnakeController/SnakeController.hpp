@@ -6,6 +6,7 @@
 #include "IEventHandler.hpp"
 #include "SnakeInterface.hpp"
 
+
 class Event;
 class IPort;
 
@@ -32,6 +33,10 @@ public:
     void receive(std::unique_ptr<Event> e) override;
 
 private:
+
+    void sendEvent(bool state);
+    void handleEventRequestedFood(const FoodResp &e);
+
     struct Segment
     {
         int x;
