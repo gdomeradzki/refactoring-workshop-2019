@@ -215,7 +215,7 @@ Controller::Segment Controller::getNewHead() const
 
 void Controller::receive(std::unique_ptr<Event> e)
 {
-    if (handleTimePassed e.getMessageId()) == 0x20)
+    if (e.getMessageId() == 0x20)
         handleTimePassed(*static_cast<EventT<TimeoutInd> const&>(*e));
     try {
 
