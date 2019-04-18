@@ -229,6 +229,9 @@ void Controller::receive(std::unique_ptr<Event> e)
     case 0x42 :
                     handleNewFood(*static_cast<EventT<FoodResp> const&>(*e));
         break;
+
+    default :
+        throw UnexpectedEventException();
     }
    // TU JESZCZE DEF Z TYM THROWEM CZAS SIE SKONCZYL
 
