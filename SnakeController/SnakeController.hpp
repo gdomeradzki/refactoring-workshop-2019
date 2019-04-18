@@ -36,6 +36,7 @@ private:
     void handleDirectionChange(const DirectionInd&);
     void handleFoodPositionChange(const FoodInd& receivedFood);
     void handleNewFood(const FoodResp& requestedFood);
+    void handlePause(const PauseInd& PauseInd);
 
     struct Segment
     {
