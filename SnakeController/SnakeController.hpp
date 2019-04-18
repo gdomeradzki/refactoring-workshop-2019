@@ -16,7 +16,25 @@ struct ConfigurationError : std::logic_error
 {
     ConfigurationError();
 };
+struct Segment
+{
+    int x;
+    int y;
 
+};
+
+class Snake_
+{
+public:
+    std::list<Segment> m_segments;
+};
+
+class SnakeWord_
+{
+public:
+    std::pair<int, int> m_mapDimension;
+    std::pair<int, int> m_foodPosition;
+};
 struct UnexpectedEventException : std::runtime_error
 {
     UnexpectedEventException();
@@ -24,29 +42,28 @@ struct UnexpectedEventException : std::runtime_error
 
 class Controller : public IEventHandler
 {
+
 public:
+    Snake_ snake;
+    SnakeWord_ word;
     Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePort, std::string const& p_config);
 
     Controller(Controller const& p_rhs) = delete;
     Controller& operator=(Controller const& p_rhs) = delete;
 
     void receive(std::unique_ptr<Event> e) override;
-
+    //std::pair<int, int> m_mapDimension;
+  //  std::pair<int, int> m_foodPosition;
 private:
     IPort& m_displayPort;
     IPort& m_foodPort;
     IPort& m_scorePort;
 
-    std::pair<int, int> m_mapDimension;
-    std::pair<int, int> m_foodPosition;
 
-    struct Segment
-    {
-        int x;
-        int y;
-    };
 
-    std::list<Segment> m_segments;
+
+
+
     Direction m_currentDirection;
 
     void handleTimeoutInd();
