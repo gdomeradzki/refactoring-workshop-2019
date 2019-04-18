@@ -19,7 +19,8 @@ UnexpectedEventException::UnexpectedEventException()
 Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePort, std::string const& p_config)
     : m_displayPort(p_displayPort),
       m_foodPort(p_foodPort),
-      m_scorePort(p_scorePort)
+      m_scorePort(p_scorePort),
+      paused(false)
 {
     std::istringstream istr(p_config);
     char w, f, s, d;
@@ -62,47 +63,49 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
         throw ConfigurationError();
     }
 }
+void Controller::handlePause(const PauseInd&){
+
+    paused = not paused;
+}
 
 void Controller::handleTimePassed(const TimeoutInd&)
 {
-    Segment newHead = getNewHead();
+    if(not paused) {
+        Segment newHead = getNewHead();
 
-    if(doesCollideWithSnake(newHead))
-    {
-        notifyAboutFailure();
-        return;
-    }
-    if(doesCollideWithFood(newHead))
-    {
-        m_scorePort.send(std::make_unique<EventT<ScoreInd>>());
-        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
-    }
-    else if (doesCollideWithWall(newHead))
-    {
-        notifyAboutFailure();
-        return;
-    }
-    else
-    {
-        for (auto &segment : m_segments) {
-            if (not --segment.ttl) {
-                repaintTile(segment, Cell_FREE);
+        if (doesCollideWithSnake(newHead)) {
+            notifyAboutFailure();
+            return;
+        }
+        if (doesCollideWithFood(newHead)) {
+            m_scorePort.send(std::make_unique<EventT<ScoreInd>>());
+            m_foodPort.send(std::make_unique<EventT<FoodReq>>());
+        } else if (doesCollideWithWall(newHead)) {
+            notifyAboutFailure();
+            return;
+        } else {
+            for (auto &segment : m_segments) {
+                if (not--segment.ttl) {
+                    repaintTile(segment, Cell_FREE);
+                }
             }
         }
+
+        m_segments.push_front(newHead);
+        repaintTile(newHead, Cell_SNAKE);
+
+        cleanNotExistingSnakeSegments();
     }
-
-    m_segments.push_front(newHead);
-    repaintTile(newHead, Cell_SNAKE);
-
-    cleanNotExistingSnakeSegments();
 }
 
 void Controller::handleDirectionChange(const DirectionInd& directionInd)
 {
-    auto direction = directionInd.direction;
+    if(not paused) {
+        auto direction = directionInd.direction;
 
-    if ((m_currentDirection & 0b01) != (direction & 0b01)) {
-        m_currentDirection = direction;
+        if ((m_currentDirection & 0b01) != (direction & 0b01)) {
+            m_currentDirection = direction;
+        }
     }
 }
 
@@ -215,14 +218,21 @@ Controller::Segment Controller::getNewHead() const
 
 void Controller::receive(std::unique_ptr<Event> e)
 {
+
+
+
     switch(e->getMessageId())
     {
         case TimeoutInd::MESSAGE_ID: return handleTimePassed(*static_cast<EventT<TimeoutInd> const&>(*e));
-        case DirectionInd::MESSAGE_ID: return handleDirectionChange(*static_cast<EventT<DirectionInd> const&>(*e));
+        case DirectionInd::MESSAGE_ID:return handleDirectionChange(*static_cast<EventT<DirectionInd> const&>(*e));
+
         case FoodInd::MESSAGE_ID: return handleFoodPositionChange(*static_cast<EventT<FoodInd> const&>(*e));
         case FoodResp::MESSAGE_ID: return handleNewFood(*static_cast<EventT<FoodResp> const&>(*e));
+        case PauseInd::MESSAGE_ID: return handlePause(*static_cast<EventT<PauseInd> const&>(*e));
         default: throw UnexpectedEventException();
-    };
+    }
 }
+
+
 
 } // namespace Snake

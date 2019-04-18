@@ -54,12 +54,15 @@ private:
     void repaintTile(unsigned int x, unsigned int y, Cell type);
 
     void cleanNotExistingSnakeSegments();
+    void handlePause(const PauseInd&);
+
+
 
 
     IPort& m_displayPort;
     IPort& m_foodPort;
     IPort& m_scorePort;
-
+    bool paused;
     std::pair<int, int> m_mapDimension;
     std::pair<int, int> m_foodPosition;
 
