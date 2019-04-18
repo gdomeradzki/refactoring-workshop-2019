@@ -31,6 +31,7 @@ public:
 
     void receive(std::unique_ptr<Event> e) override;
 
+
 private:
     struct Segment
     {
@@ -45,6 +46,10 @@ private:
 
     std::pair<int, int> m_mapDimension;
     std::pair<int, int> m_foodPosition;
+
+    void notLost(Segment newHead, bool& lost);
+    void notLost2(Segment newHead, bool& lost);
+    void requestedfood(auto requestedFood, bool& requestedFoodCollidedWithSnake);
 
     Direction m_currentDirection;
     std::list<Segment> m_segments;
