@@ -31,6 +31,11 @@ public:
 
     void receive(std::unique_ptr<Event> e) override;
 
+    void placeNewFood(const FoodResp& requestedFood);
+    void placeNewFood(const FoodInd& requestedFood);
+    void clearOldFood();
+
+
 private:
     struct Segment
     {
