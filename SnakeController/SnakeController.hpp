@@ -42,6 +42,7 @@ private:
     IPort& m_foodPort;
     IPort& m_scorePort;
     void handleReceivedFood(FoodInd receivedFood);
+    void handleRequestedFood(FoodResp receivedFood);
     std::pair<int, int> m_mapDimension;
     std::pair<int, int> m_foodPosition;
 
