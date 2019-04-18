@@ -30,35 +30,44 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
     istr >> w >> width >> height >> f >> foodX >> foodY >> s;
 
     if (w == 'W' and f == 'F' and s == 'S') {
-        m_mapDimension = std::make_pair(width, height);
-        m_foodPosition = std::make_pair(foodX, foodY);
-
         istr >> d;
+        Direction dir;
         switch (d) {
             case 'U':
-                m_currentDirection = Direction_UP;
+                dir = Direction_UP;
                 break;
             case 'D':
-                m_currentDirection = Direction_DOWN;
+                dir = Direction_DOWN;
                 break;
             case 'L':
-                m_currentDirection = Direction_LEFT;
+                dir = Direction_LEFT;
                 break;
             case 'R':
-                m_currentDirection = Direction_RIGHT;
+                dir = Direction_RIGHT;
                 break;
             default:
                 throw ConfigurationError();
         }
         istr >> length;
-
-        while (length--) {
-            Segment seg;
-            istr >> seg.x >> seg.y;
-            m_segments.push_back(seg);
-        }
+        board{width, height, foodX, foodY, length, dir};
     } else {
         throw ConfigurationError();
+    }
+}
+
+Board::Board(int width, int height, int foodX, int foodY, int snakeLen, Direction snakeDir)
+    :Snake(snakeLen, snakeDir),
+      m_mapDimension{std::make_pair(width, height)},
+      m_foodPosition{std::make_pair{foodX, foodY}}
+{}
+
+Snake::Snake(Direction dir, int length)
+    :m_currentDirection(dir)
+{
+    while (length--) {
+        Segment seg;
+        istr >> seg.x >> seg.y;
+        m_segments.push_back(seg);
     }
 }
 
@@ -191,11 +200,10 @@ void Controller::handleDirectionInd(std::unique_ptr<Event> e)
 
 void Controller::updateFoodPosition(int x, int y, std::function<void()> clearPolicy)
 {
-    if (isSegmentAtPosition(x, y)) {
-        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
+    if (isSegmentAtPosition(x, y) || isPositionOutsideMap(x,y)) {
+            m_foodPort.send(std::make_unique<EventT<FoodReq>>());
         return;
     }
-
     clearPolicy();
     sendPlaceNewFood(x, y);
 }
