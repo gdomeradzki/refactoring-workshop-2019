@@ -22,6 +22,20 @@ struct UnexpectedEventException : std::runtime_error
     UnexpectedEventException();
 };
 
+class World
+{
+public:
+    bool m_paused = false;
+
+private:
+    void handleDirectionInd(std::unique_ptr<Event>);
+    void handlePauseInd(std::unique_ptr<Event>);
+
+
+    Direction m_currentDirection;
+
+};
+
 class Controller : public IEventHandler
 {
 public:
@@ -50,7 +64,7 @@ private:
     Direction m_currentDirection;
 
     void handleTimeoutInd();
-    void handleDirectionInd(std::unique_ptr<Event>);
+    //void handleDirectionInd(std::unique_ptr<Event>);
     void handleFoodInd(std::unique_ptr<Event>);
     void handleFoodResp(std::unique_ptr<Event>);
     void handlePauseInd(std::unique_ptr<Event>);
@@ -69,6 +83,7 @@ private:
     void sendPlaceNewFood(int x, int y);
 
     bool m_paused;
+    World* _world;
 };
 
 } // namespace Snake

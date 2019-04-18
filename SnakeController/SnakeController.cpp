@@ -179,7 +179,7 @@ void Controller::handleTimeoutInd()
 {
     updateSegmentsIfSuccessfullMove(calculateNewHead());
 }
-
+/*
 void Controller::handleDirectionInd(std::unique_ptr<Event> e)
 {
     auto direction = payload<DirectionInd>(*e).direction;
@@ -188,17 +188,13 @@ void Controller::handleDirectionInd(std::unique_ptr<Event> e)
         m_currentDirection = direction;
     }
 }
+*/
 
-void Controller::updateFoodPosition(int x, int y, std::function<void()> clearPolicy)
+void World::handleDirectionInd(std::unique_ptr<Event>)
 {
-    if (isSegmentAtPosition(x, y)) {
-        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
-        return;
-    }
 
-    clearPolicy();
-    sendPlaceNewFood(x, y);
 }
+
 
 void Controller::handleFoodInd(std::unique_ptr<Event> e)
 {
@@ -214,21 +210,28 @@ void Controller::handleFoodResp(std::unique_ptr<Event> e)
     updateFoodPosition(requestedFood.x, requestedFood.y, []{});
 }
 
+void World::handlePauseInd(std::unique_ptr<Event>)
+{
+    m_paused = not m_paused;
+}
+/*
 void Controller::handlePauseInd(std::unique_ptr<Event> e)
 {
     m_paused = not m_paused;
 }
+*/
+
 
 void Controller::receive(std::unique_ptr<Event> e)
 {
     switch (e->getMessageId()) {
         case TimeoutInd::MESSAGE_ID:
-            if (!m_paused) {
+            if (!_world.m_paused) {
                 return handleTimeoutInd();
             }
             return;
         case DirectionInd::MESSAGE_ID:
-            if (!m_paused) {
+            if (!_world.m_paused) {
                 return handleDirectionInd(std::move(e));
             }
             return;
