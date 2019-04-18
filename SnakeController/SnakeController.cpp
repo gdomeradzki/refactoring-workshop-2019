@@ -215,23 +215,53 @@ Controller::Segment Controller::getNewHead() const
 
 void Controller::receive(std::unique_ptr<Event> e)
 {
-    try {
-        handleTimePassed(*dynamic_cast<EventT<TimeoutInd> const&>(*e));
-    } catch (std::bad_cast&) {
-        try {
-            handleDirectionChange(*dynamic_cast<EventT<DirectionInd> const&>(*e));
-        } catch (std::bad_cast&) {
-            try {
-                handleFoodPositionChange(*dynamic_cast<EventT<FoodInd> const&>(*e));
-            } catch (std::bad_cast&) {
-                try {
-                    handleNewFood(*dynamic_cast<EventT<FoodResp> const&>(*e));
-                } catch (std::bad_cast&) {
-                    throw UnexpectedEventException();
-                }
-            }
+    // nie dziala :(
+    switch(e -> getMessageId())
+    {
+        case 0x10:
+        {
+            DirectionInd a;
+            handleDirectionChange(a);
+            break;
+        }
+        case 0x20:
+        {
+            TimeoutInd a;
+            handleTimePassed(a);
+            break;
+        }
+        case 0x42:
+        {
+            FoodResp a;
+            handleNewFood(a);
+            break;
+        }
+        case 0x40:
+        {
+            FoodInd a;
+            handleFoodPositionChange(a);
+            break;
         }
     }
-}
+
+//    try {
+//        handleTimePassed(*dynamic_cast<EventT<TimeoutInd> const&>(*e));
+//    } catch (std::bad_cast&) {
+//        /*try {
+//            handleDirectionChange(*dynamic_cast<EventT<DirectionInd> const&>(*e));
+//        } catch (std::bad_cast&)*/
+//        {
+//            try {
+//                handleFoodPositionChange(*dynamic_cast<EventT<FoodInd> const&>(*e));
+//            } catch (std::bad_cast&) {
+//                try {
+//                    handleNewFood(*dynamic_cast<EventT<FoodResp> const&>(*e));
+//                } catch (std::bad_cast&) {
+//                    throw UnexpectedEventException();
+//                }
+            }
+//        }
+//    }
+//}
 
 } // namespace Snake
