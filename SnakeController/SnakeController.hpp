@@ -25,7 +25,11 @@ public:
     Direction m_currentDirection;
 };
 
-
+class SnakeWorld{
+public:
+    std::pair<int, int> m_mapDimension;
+    std::pair<int, int> m_foodPosition;
+};
 struct ConfigurationError : std::logic_error
 {
     ConfigurationError();
@@ -51,11 +55,10 @@ private:
     IPort& m_foodPort;
     IPort& m_scorePort;
 
-    std::pair<int, int> m_mapDimension;
-    std::pair<int, int> m_foodPosition;
 
 
 
+    SnakeWorld world;
     RSnake snake;
 
     void handleTimeoutInd();
@@ -83,9 +86,7 @@ private:
 } // namespace Snake
 
 
-class SnakeWorld{
 
-};
 
 
 
