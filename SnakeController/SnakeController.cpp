@@ -26,6 +26,7 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
 
     int width, height, length;
     int foodX, foodY;
+    
     istr >> w >> width >> height >> f >> foodX >> foodY >> s;
 
     if (w == 'W' and f == 'F' and s == 'S') {
@@ -62,40 +63,34 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
         throw ConfigurationError();
     }
 }
-
-void Controller::receive(std::unique_ptr<Event> e)
+bool Controller::areSegmentsEqual(Segment s1,Segment s2)
 {
-    try {
-        auto const& timerEvent = *dynamic_cast<EventT<TimeoutInd> const&>(*e);
+   return ( s1.x == s2.x and s1.y == s2.y);
+}
+void Controller::goThroughSegment(bool& _lost, Segment& newHead)
+{
+    for (auto segment : m_segments) 
+            {
+                if (Controller::areSegmentsEqual(segment,newHead)) {
+                    m_scorePort.send(std::make_unique<EventT<LooseInd>>());
+                    _lost = true;
+                    break;
+                }
+            }
 
+}
+
+void Controller::giveNewHeadParams(Segment& newHead)
+{
         Segment const& currentHead = m_segments.front();
-
-        Segment newHead;
         newHead.x = currentHead.x + ((m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
         newHead.y = currentHead.y + (not (m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
         newHead.ttl = currentHead.ttl;
 
-        bool lost = false;
-
-        for (auto segment : m_segments) {
-            if (segment.x == newHead.x and segment.y == newHead.y) {
-                m_scorePort.send(std::make_unique<EventT<LooseInd>>());
-                lost = true;
-                break;
-            }
-        }
-
-        if (not lost) {
-            if (std::make_pair(newHead.x, newHead.y) == m_foodPosition) {
-                m_scorePort.send(std::make_unique<EventT<ScoreInd>>());
-                m_foodPort.send(std::make_unique<EventT<FoodReq>>());
-            } else if (newHead.x < 0 or newHead.y < 0 or
-                       newHead.x >= m_mapDimension.first or
-                       newHead.y >= m_mapDimension.second) {
-                m_scorePort.send(std::make_unique<EventT<LooseInd>>());
-                lost = true;
-            } else {
-                for (auto &segment : m_segments) {
+}
+void Controller::freeSegments()
+{
+for (auto &segment : m_segments) {
                     if (not --segment.ttl) {
                         DisplayInd l_evt;
                         l_evt.x = segment.x;
@@ -105,9 +100,38 @@ void Controller::receive(std::unique_ptr<Event> e)
                         m_displayPort.send(std::make_unique<EventT<DisplayInd>>(l_evt));
                     }
                 }
+}
+void Controller::sendAttributes(Segment& newHead, bool& lost)
+{
+ if (not lost) {
+            if (std::make_pair(newHead.x, newHead.y) == m_foodPosition) {
+                m_scorePort.send(std::make_unique<EventT<ScoreInd>>());
+                m_foodPort.send(std::make_unique<EventT<FoodReq>>());
+            } else if (newHead.x < 0 or newHead.y < 0 or
+                       newHead.x >= m_mapDimension.first or
+                       newHead.y >= m_mapDimension.second) {
+                m_scorePort.send(std::make_unique<EventT<LooseInd>>());
+                lost = true;
+            } else {
+                freeSegments();
             }
         }
 
+    
+}
+void Controller::receive(std::unique_ptr<Event> e)
+{
+    try {
+        auto const& timerEvent = *dynamic_cast<EventT<TimeoutInd> const&>(*e);
+
+    
+
+        Segment newHead;
+        giveNewHeadParams(newHead);
+        bool lost = false;
+        goThroughSegment(lost,newHead);
+        sendAttributes(newHead,lost);
+       
         if (not lost) {
             m_segments.push_front(newHead);
             DisplayInd placeNewHead;

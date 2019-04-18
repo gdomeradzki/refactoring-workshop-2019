@@ -30,7 +30,7 @@ public:
     Controller& operator=(Controller const& p_rhs) = delete;
 
     void receive(std::unique_ptr<Event> e) override;
-
+    
 private:
     struct Segment
     {
@@ -48,6 +48,12 @@ private:
 
     Direction m_currentDirection;
     std::list<Segment> m_segments;
+public:
+    bool areSegmentsEqual(Segment s1,Segment s2);
+    void goThroughSegment(bool& _lost,Segment&);
+    void giveNewHeadParams(Segment& newHead);
+    void freeSegments();
+    void sendAttributes(Segment& newHead, bool& lost);
 };
 
 } // namespace Snake
