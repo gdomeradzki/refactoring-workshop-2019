@@ -4,6 +4,15 @@
 
 #include "Event.hpp"
 
+
+enum class EventName
+{
+    DirectionInd   = 0x10,
+    TimeOutInd  = 0x20,
+    FoodInd  = 0x40,
+    FoodResp = 0x42
+};
+
 template <class T>
 class EventT : public Event
 {
