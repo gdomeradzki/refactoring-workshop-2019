@@ -22,6 +22,7 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
       m_scorePort(p_scorePort),
       m_paused(false)
 {
+    Map m_mapDimension;
     std::istringstream istr(p_config);
     char w, f, s, d;
 
@@ -119,7 +120,7 @@ bool perpendicular(Direction dir1, Direction dir2)
 }
 } // namespace
 
-Controller::Segment Controller::calculateNewHead() const
+Snake::Segment Controller::calculateNewHead() const
 {
     Segment const& currentHead = m_segments.front();
 
@@ -191,7 +192,7 @@ void Controller::handleDirectionInd(std::unique_ptr<Event> e)
 
 void Controller::updateFoodPosition(int x, int y, std::function<void()> clearPolicy)
 {
-    if (isSegmentAtPosition(x, y)) {
+    if (isSegmentAtPosition(x, y)||isPositionOutsideMap(x,y)) {
         m_foodPort.send(std::make_unique<EventT<FoodReq>>());
         return;
     }

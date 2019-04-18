@@ -12,6 +12,18 @@ class IPort;
 
 namespace Snake
 {
+
+    struct Segment
+    {
+        int x;
+        int y;
+        
+    };
+    struct Map
+    {
+    std::pair<int, int> m_mapDimension;
+
+    };
 struct ConfigurationError : std::logic_error
 {
     ConfigurationError();
@@ -37,14 +49,10 @@ private:
     IPort& m_foodPort;
     IPort& m_scorePort;
 
-    std::pair<int, int> m_mapDimension;
+
     std::pair<int, int> m_foodPosition;
 
-    struct Segment
-    {
-        int x;
-        int y;
-    };
+    
 
     std::list<Segment> m_segments;
     Direction m_currentDirection;
@@ -72,3 +80,5 @@ private:
 };
 
 } // namespace Snake
+
+
