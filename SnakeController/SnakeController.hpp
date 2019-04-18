@@ -9,7 +9,7 @@
 
 class Event;
 class IPort;
-
+class SnakeHandler;
 namespace Snake
 {
 struct ConfigurationError : std::logic_error
@@ -33,20 +33,12 @@ public:
     void receive(std::unique_ptr<Event> e) override;
 
 private:
-    IPort& m_displayPort;
-    IPort& m_foodPort;
-    IPort& m_scorePort;
+
 
     std::pair<int, int> m_mapDimension;
     std::pair<int, int> m_foodPosition;
 
-    struct Segment
-    {
-        int x;
-        int y;
-    };
 
-    std::list<Segment> m_segments;
     Direction m_currentDirection;
 
     void handleTimeoutInd();
@@ -55,20 +47,46 @@ private:
     void handleFoodResp(std::unique_ptr<Event>);
     void handlePauseInd(std::unique_ptr<Event>);
 
-    bool isSegmentAtPosition(int x, int y) const;
-    Segment calculateNewHead() const;
-    void updateSegmentsIfSuccessfullMove(Segment const& newHead);
-    void addHeadSegment(Segment const& newHead);
-    void removeTailSegmentIfNotScored(Segment const& newHead);
-    void removeTailSegment();
+
 
     bool isPositionOutsideMap(int x, int y) const;
 
-    void updateFoodPosition(int x, int y, std::function<void()> clearPolicy);
-    void sendClearOldFood();
-    void sendPlaceNewFood(int x, int y);
+
 
     bool m_paused;
+
 };
 
+class Segment{
+    int x;
+    int y;
+
+};
+class SnakeHandler{
+
+        std::list<Segment> m_segments;
+        IPort& m_displayPort;
+        IPort& m_foodPort;
+        IPort& m_scorePort;
+    public:
+        SnakeHandler(IPort& m_displayPort, IPort& m_foodPort, IPort& m_scorePort, Segment& segment):m_displayPort(m_displayPort), m_foodPort(m_foodPort),m_scorePort(m_scorePort){}
+        bool isSegmentAtPosition(int x, int y) const;
+        Segment calculateNewHead() const;
+        void updateSegmentsIfSuccessfullMove(Segment const& newHead);
+        void addHeadSegment(Segment const& newHead);
+        void removeTailSegmentIfNotScored(Segment const& newHead);
+        void removeTailSegment();
+    };
+
+class FoodHandler{
+    public:
+        FoodHandler(IPort& m_foodPort):m_foodPort(m_foodPort){}
+        void updateFoodPosition(int x, int y, std::function<void()> clearPolicy);
+        void sendClearOldFood();
+        void sendPlaceNewFood(int x, int y);
+
+    private:
+        IPort& m_foodPort;
+
+    };
 } // namespace Snake
