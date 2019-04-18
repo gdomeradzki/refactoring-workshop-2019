@@ -63,9 +63,38 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
     }
 }
 
-void Controller::receive(std::unique_ptr<Event> e)
+bool Controller::checkIfSnakeCollidesWithItself(Segment& newHead)
 {
-    try {
+    for (auto segment : m_segments) {
+        if (segment.x == newHead.x and segment.y == newHead.y) {
+            m_scorePort.send(std::make_unique<EventT<LooseInd>>());
+            return true;
+           
+        }
+    }
+    return false;
+}
+
+void Controller::updateSegments(Segment& newHead)
+{
+            m_segments.push_front(newHead);
+            DisplayInd placeNewHead;
+            placeNewHead.x = newHead.x;
+            placeNewHead.y = newHead.y;
+            placeNewHead.value = Cell_SNAKE;
+
+            m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
+
+            m_segments.erase(
+                std::remove_if(
+                    m_segments.begin(),
+                    m_segments.end(),
+                    [](auto const& segment){ return not (segment.ttl > 0); }),
+                m_segments.end());
+}
+
+void Controller::timeoutHandler(Event *e)
+{
         auto const& timerEvent = *dynamic_cast<EventT<TimeoutInd> const&>(*e);
 
         Segment const& currentHead = m_segments.front();
@@ -75,15 +104,7 @@ void Controller::receive(std::unique_ptr<Event> e)
         newHead.y = currentHead.y + (not (m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
         newHead.ttl = currentHead.ttl;
 
-        bool lost = false;
-
-        for (auto segment : m_segments) {
-            if (segment.x == newHead.x and segment.y == newHead.y) {
-                m_scorePort.send(std::make_unique<EventT<LooseInd>>());
-                lost = true;
-                break;
-            }
-        }
+        bool lost = checkIfSnakeCollidesWithItself(newHead);
 
         if (not lost) {
             if (std::make_pair(newHead.x, newHead.y) == m_foodPosition) {
@@ -109,28 +130,27 @@ void Controller::receive(std::unique_ptr<Event> e)
         }
 
         if (not lost) {
-            m_segments.push_front(newHead);
-            DisplayInd placeNewHead;
-            placeNewHead.x = newHead.x;
-            placeNewHead.y = newHead.y;
-            placeNewHead.value = Cell_SNAKE;
-
-            m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
-
-            m_segments.erase(
-                std::remove_if(
-                    m_segments.begin(),
-                    m_segments.end(),
-                    [](auto const& segment){ return not (segment.ttl > 0); }),
-                m_segments.end());
+	    updateSegments(newHead);
         }
+}
+
+void Controller::directionHandler(Event *e)
+{
+    auto direction = dynamic_cast<EventT<DirectionInd> const&>(*e)->direction;
+
+    if ((m_currentDirection & 0b01) != (direction & 0b01)) {
+            m_currentDirection = direction;
+    }
+}
+
+void Controller::receive(std::unique_ptr<Event> e)
+{
+    try {
+	timeoutHandler(e.get());
     } catch (std::bad_cast&) {
         try {
-            auto direction = dynamic_cast<EventT<DirectionInd> const&>(*e)->direction;
-
-            if ((m_currentDirection & 0b01) != (direction & 0b01)) {
-                m_currentDirection = direction;
-            }
+            directionHandler(e.get());
+            
         } catch (std::bad_cast&) {
             try {
                 auto receivedFood = *dynamic_cast<EventT<FoodInd> const&>(*e);

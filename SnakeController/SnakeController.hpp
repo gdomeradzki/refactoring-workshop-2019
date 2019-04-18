@@ -5,12 +5,22 @@
 
 #include "IEventHandler.hpp"
 #include "SnakeInterface.hpp"
+#include "EventT.hpp"
+#include "IPort.hpp"
 
 class Event;
 class IPort;
 
 namespace Snake
 {
+
+struct Segment
+{
+    int x;
+    int y;
+    int ttl;
+};
+
 struct ConfigurationError : std::logic_error
 {
     ConfigurationError();
@@ -30,14 +40,15 @@ public:
     Controller& operator=(Controller const& p_rhs) = delete;
 
     void receive(std::unique_ptr<Event> e) override;
+    void timeoutHandler(Event *e);
+    void directionHandler(Event *e);
+
+    bool checkIfSnakeCollidesWithItself(Segment& newHead);
+    bool checkIfSnakeHitTheWall(Segment& newHead);
+    void updateSegments(Segment&);
 
 private:
-    struct Segment
-    {
-        int x;
-        int y;
-        int ttl;
-    };
+
 
     IPort& m_displayPort;
     IPort& m_foodPort;
