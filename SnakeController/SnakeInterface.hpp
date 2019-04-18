@@ -5,6 +5,11 @@
 namespace Snake
 {
 
+struct ConfigurationError : std::logic_error
+{
+	ConfigurationError();
+};
+
 enum Direction
 {
     Direction_UP    = 0b00,
