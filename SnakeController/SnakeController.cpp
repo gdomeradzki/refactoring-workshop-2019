@@ -66,7 +66,7 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
 void Controller::receive(std::unique_ptr<Event> e)
 {
     try {
-        auto const& timerEvent = *dynamic_cast<EventT<TimeoutInd> const&>(*e);
+        //auto const& timerEvent = *dynamic_cast<EventT<TimeoutInd> const&>(*e);
 
         Segment const& currentHead = m_segments.front();
 
@@ -138,7 +138,7 @@ void Controller::receive(std::unique_ptr<Event> e)
                 bool requestedFoodCollidedWithSnake = false;
                 for (auto const& segment : m_segments) {
                     if (segment.x == receivedFood.x and segment.y == receivedFood.y) {
-                        requestedFoodCollidedWithSnake = true;
+                        requestedFoodCollidedWithSnm_segmentsake = true;
                         break;
                     }
                 }
@@ -163,16 +163,9 @@ void Controller::receive(std::unique_ptr<Event> e)
 
             } catch (std::bad_cast&) {
                 try {
-                    auto requestedFood = *dynamic_cast<EventT<FoodResp> const&>(*e);
-
-                    bool requestedFoodCollidedWithSnake = false;
-                    for (auto const& segment : m_segments) {
-                        if (segment.x == requestedFood.x and segment.y == requestedFood.y) {
-                            requestedFoodCollidedWithSnake = true;
-                            break;
-                        }
-                    }
-
+					//------------------------------------------
+					bool requestedFoodCollidedWithSnake = Controller::collided(m_segments, e);
+					
                     if (requestedFoodCollidedWithSnake) {
                         m_foodPort.send(std::make_unique<EventT<FoodReq>>());
                     } else {
@@ -190,6 +183,16 @@ void Controller::receive(std::unique_ptr<Event> e)
             }
         }
     }
+}
+
+bool Controller::collided(std::list<Segment> m_segments, std::unique_ptr<Event> e)
+{
+	auto requestedFood = *dynamic_cast<EventT<FoodResp> const&>(*e);
+	
+	for (auto const& segment : m_segments) {
+		if (segment.x == requestedFood.x and segment.y == requestedFood.y) return true;
+		return false;
+	}
 }
 
 } // namespace Snake
