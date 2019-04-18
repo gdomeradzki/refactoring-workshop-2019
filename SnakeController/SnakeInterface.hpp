@@ -13,6 +13,14 @@ enum Direction
     Direction_RIGHT = 0b11
 };
 
+enum Messages
+{
+    Message_DIRECTION_CHANGED = 0x10,
+    Message_TIME_PASSED = 0x20,
+    Message_FOOD_POSITION_CHANGED = 0x40,
+    Message_NEW_FOOD = 0x42
+};
+
 struct DirectionInd
 {
     static constexpr std::uint32_t MESSAGE_ID = 0x10;
