@@ -65,6 +65,8 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
 
 void Controller::handleTimePassed(const TimeoutInd&)
 {
+    if(isPaused)
+        return;
     Segment newHead = getNewHead();
 
     if(doesCollideWithSnake(newHead))
@@ -99,6 +101,8 @@ void Controller::handleTimePassed(const TimeoutInd&)
 
 void Controller::handleDirectionChange(const DirectionInd& directionInd)
 {
+    if(isPaused)
+        return;
     auto direction = directionInd.direction;
 
     if ((m_currentDirection & 0b01) != (direction & 0b01)) {
@@ -108,6 +112,8 @@ void Controller::handleDirectionChange(const DirectionInd& directionInd)
 
 void Controller::handleFoodPositionChange(const FoodInd& receivedFood)
 {
+    if(isPaused)
+        return;
     bool requestedFoodCollidedWithSnake = false;
     for (auto const& segment : m_segments) {
         if (segment.x == receivedFood.x and segment.y == receivedFood.y) {
@@ -129,6 +135,8 @@ void Controller::handleFoodPositionChange(const FoodInd& receivedFood)
 
 void Controller::handleNewFood(const FoodResp& requestedFood)
 {
+    if(isPaused)
+        return;
     bool requestedFoodCollidedWithSnake = false;
     for (auto const& segment : m_segments) {
         if (segment.x == requestedFood.x and segment.y == requestedFood.y) {
@@ -213,6 +221,10 @@ Controller::Segment Controller::getNewHead() const
     return newHead;
 }
 
+void Controller::handlePause(const PauseInd& pause){
+    isPaused = true;
+}
+
 void Controller::receive(std::unique_ptr<Event> e)
 {
     switch(e->getMessageId())
@@ -221,6 +233,7 @@ void Controller::receive(std::unique_ptr<Event> e)
         case DirectionInd::MESSAGE_ID: return handleDirectionChange(*static_cast<EventT<DirectionInd> const&>(*e));
         case FoodInd::MESSAGE_ID: return handleFoodPositionChange(*static_cast<EventT<FoodInd> const&>(*e));
         case FoodResp::MESSAGE_ID: return handleNewFood(*static_cast<EventT<FoodResp> const&>(*e));
+        case PauseInd::MESSAGE_ID: return handlePause(*static_cast<EventT<PauseInd> const&>(*e));
         default: throw UnexpectedEventException();
     };
 }
