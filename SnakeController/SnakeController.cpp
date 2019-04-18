@@ -63,7 +63,7 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
     }
 }
 
-void Controller::handleTimePassed(const Event &)
+void Controller::handleTimePassed(const TimeoutInd&)
 {
     Segment newHead = getNewHead();
 
@@ -97,7 +97,7 @@ void Controller::handleTimePassed(const Event &)
     cleanNotExistingSnakeSegments();
 }
 
-void Controller::handleDirectionChange(const EventT<DirectionInd>& directionInd)
+void Controller::handleDirectionChange(const DirectionInd& directionInd)
 {
     auto direction = directionInd.direction;
 
@@ -215,22 +215,20 @@ Controller::Segment Controller::getNewHead() const
 
 void Controller::receive(std::unique_ptr<Event> e)
 {
-    try {
-        handleTimePassed(*e));
-    } catch (std::bad_cast&) {
-        try {
-            handleDirectionChange(*e);
-        } catch (std::bad_cast&) {
-            try {
-                handleFoodPositionChange(*dynamic_cast<EventT<FoodInd> const&>(*e));
-            } catch (std::bad_cast&) {
-                try {
-                    handleNewFood(*dynamic_cast<EventT<FoodResp> const&>(*e));
-                } catch (std::bad_cast&) {
-                    throw UnexpectedEventException();
-                }
-            }
-        }
+
+    switch( e->getMessageId )
+    {
+        case DirectionInd::MESSAGE_ID:
+        handleDirectionChange(*static_cast<EventT<DirectionInd> const&>(*e));
+        break;
+        case FoodInd::MESSAGE_ID:
+        handleFoodPositionChange(*static_cast<EventT<FoodInd> const&>(*e));
+        break;
+        case FoodResp::MESSAGE_ID:
+        handleNewFood(*static_cast<EventT<FoodResp> const&>(*e));
+        break;
+        default:
+            throw UnexpectedEventException();
     }
 }
 
