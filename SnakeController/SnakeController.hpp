@@ -32,6 +32,7 @@ public:
     void receive(std::unique_ptr<Event> e) override;
 
 private:
+    bool pause = false;
     void handleTimePassed(const TimeoutInd&);
     void handleDirectionChange(const DirectionInd&);
     void handleFoodPositionChange(const FoodInd& receivedFood);
