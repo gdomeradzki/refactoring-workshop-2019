@@ -8,6 +8,27 @@
 
 namespace Snake
 {
+
+bool Controller::isRequestedFoodCollidedWithSnake( const Snake::FoodResp & requestedFood)
+{
+    for (auto const& segment : m_segments) {
+                    if (segment.x == requestedFood.x and segment.y == requestedFood.y) {
+                        return true;
+                        break;
+                    }
+    }
+    return false;
+}
+bool Controller::isRequestedFoodCollidedWithSnake( const Snake::FoodInd & requestedFood)
+{
+    for (auto const& segment : m_segments) {
+                    if (segment.x == requestedFood.x and segment.y == requestedFood.y) {
+                        return true;
+                        break;
+                    }
+    }
+    return false;
+}
 ConfigurationError::ConfigurationError()
     : std::logic_error("Bad configuration of Snake::Controller.")
 {}
@@ -15,6 +36,26 @@ ConfigurationError::ConfigurationError()
 UnexpectedEventException::UnexpectedEventException()
     : std::runtime_error("Unexpected event received!")
 {}
+
+void Controller::setDirection(char d)
+{
+            switch (d) {
+            case 'U':
+                m_currentDirection = Direction_UP;
+                break;
+            case 'D':
+                m_currentDirection = Direction_DOWN;
+                break;
+            case 'L':
+                m_currentDirection = Direction_LEFT;
+                break;
+            case 'R':
+                m_currentDirection = Direction_RIGHT;
+                break;
+            default:
+                throw ConfigurationError();
+        }
+}
 
 Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePort, std::string const& p_config)
     : m_displayPort(p_displayPort),
@@ -33,22 +74,7 @@ Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePo
         m_foodPosition = std::make_pair(foodX, foodY);
 
         istr >> d;
-        switch (d) {
-            case 'U':
-                m_currentDirection = Direction_UP;
-                break;
-            case 'D':
-                m_currentDirection = Direction_DOWN;
-                break;
-            case 'L':
-                m_currentDirection = Direction_LEFT;
-                break;
-            case 'R':
-                m_currentDirection = Direction_RIGHT;
-                break;
-            default:
-                throw ConfigurationError();
-        }
+        setDirection( d );
         istr >> length;
 
         while (length) {
@@ -135,13 +161,7 @@ void Controller::receive(std::unique_ptr<Event> e)
             try {
                 auto receivedFood = *dynamic_cast<EventT<FoodInd> const&>(*e);
 
-                bool requestedFoodCollidedWithSnake = false;
-                for (auto const& segment : m_segments) {
-                    if (segment.x == receivedFood.x and segment.y == receivedFood.y) {
-                        requestedFoodCollidedWithSnake = true;
-                        break;
-                    }
-                }
+                bool requestedFoodCollidedWithSnake = isRequestedFoodCollidedWithSnake( receivedFood );
 
                 if (requestedFoodCollidedWithSnake) {
                     m_foodPort.send(std::make_unique<EventT<FoodReq>>());
@@ -165,13 +185,7 @@ void Controller::receive(std::unique_ptr<Event> e)
                 try {
                     auto requestedFood = *dynamic_cast<EventT<FoodResp> const&>(*e);
 
-                    bool requestedFoodCollidedWithSnake = false;
-                    for (auto const& segment : m_segments) {
-                        if (segment.x == requestedFood.x and segment.y == requestedFood.y) {
-                            requestedFoodCollidedWithSnake = true;
-                            break;
-                        }
-                    }
+                    bool requestedFoodCollidedWithSnake = isRequestedFoodCollidedWithSnake( requestedFood );
 
                     if (requestedFoodCollidedWithSnake) {
                         m_foodPort.send(std::make_unique<EventT<FoodReq>>());
@@ -182,6 +196,7 @@ void Controller::receive(std::unique_ptr<Event> e)
                         placeNewFood.value = Cell_FOOD;
                         m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
                     }
+
 
                     m_foodPosition = std::make_pair(requestedFood.x, requestedFood.y);
                 } catch (std::bad_cast&) {
