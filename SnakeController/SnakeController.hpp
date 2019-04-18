@@ -51,8 +51,8 @@ private:
     bool checkIfSnakeAteItself(Segment newHead);
     bool snakeBehaviourAndEat(Segment newHead);
     bool checkIfFoodAppearedInSnakeBody(auto receivedFood);
-    void createNewFoodLonger(auto receivedFood, bool requestedFoodCollidedWithSnake);
-    void createNewFoodShorter(bool requestedFoodCollidedWithSnake, auto requestedFood);
+    void removeOldFood(auto receivedFood, bool requestedFoodCollidedWithSnake);
+    void createNewFood(bool requestedFoodCollidedWithSnake, auto requestedFood);
     void changeDirection(auto direction);
 };
 

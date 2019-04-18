@@ -134,22 +134,14 @@ void Controller::createNewFood(bool requestedFoodCollidedWithSnake, auto request
     }
 }
 
-void Controller::clearAndCreateNewFood(auto receivedFood, bool requestedFoodCollidedWithSnake)
+void Controller::removeOldFood(auto receivedFood, bool requestedFoodCollidedWithSnake)
 {
-    if (requestedFoodCollidedWithSnake) {
-        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
-    } else {
+    if (!requestedFoodCollidedWithSnake) {
         DisplayInd clearOldFood;
         clearOldFood.x = m_foodPosition.first;
         clearOldFood.y = m_foodPosition.second;
         clearOldFood.value = Cell_FREE;
         m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearOldFood));
-
-        DisplayInd placeNewFood;
-        placeNewFood.x = receivedFood.x;
-        placeNewFood.y = receivedFood.y;
-        placeNewFood.value = Cell_FOOD;
-        m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
     }
 }
 
@@ -198,7 +190,8 @@ void Controller::receive(std::unique_ptr<Event> e)
             try {
                 auto receivedFood = *dynamic_cast<EventT<FoodInd> const&>(*e);
                 bool requestedFoodCollidedWithSnake = checkIfFoodAppearedInSnakeBody(receivedFood);
-                clearAndCreateNewFood(receivedFood, requestedFoodCollidedWithSnake);
+                removeOldFood(receivedFood, requestedFoodCollidedWithSnake);
+                createNewFood(requestedFoodCollidedWithSnake, receivedFood);
                 m_foodPosition = std::make_pair(receivedFood.x, receivedFood.y);
             } catch (std::bad_cast&) {
                 try {
