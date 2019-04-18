@@ -48,6 +48,7 @@ private:
 
     Direction m_currentDirection;
     std::list<Segment> m_segments;
+    void handleRequestedFood(const FoodResp &e);
 };
 
 } // namespace Snake
