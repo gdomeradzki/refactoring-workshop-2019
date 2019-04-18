@@ -29,6 +29,19 @@ public:
     std::pair<int, int> m_foodPosition;
 };
 
+struct Segment
+{
+    int x;
+    int y;
+};
+
+class Snake
+{
+public:
+    std::list<Segment> m_segments;
+    Direction m_currentDirection;
+};
+
 class Controller : public IEventHandler
 {
 public:
@@ -45,15 +58,8 @@ private:
     IPort& m_scorePort;
 
     World m_World;
+    Snake m_Snake;
 
-    struct Segment
-    {
-        int x;
-        int y;
-    };
-
-    std::list<Segment> m_segments;
-    Direction m_currentDirection;
 
     void handleTimeoutInd();
     void handleDirectionInd(std::unique_ptr<Event>);
