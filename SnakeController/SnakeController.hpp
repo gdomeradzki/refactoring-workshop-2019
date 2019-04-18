@@ -30,6 +30,7 @@ public:
     Controller& operator=(Controller const& p_rhs) = delete;
 
     void receive(std::unique_ptr<Event> e) override;
+    void handleRequestedlFood(FoodResp requestedFood);
 
 private:
     struct Segment
