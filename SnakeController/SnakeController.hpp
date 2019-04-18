@@ -39,6 +39,20 @@ private:
         int ttl;
     };
 
+    Segment calculateNewHead();
+
+    bool checkIfSelfCollision(const Segment& newHead);
+
+    bool checkIfWallCollision(const Segment& newHead);
+
+    bool checkIfAteFood(const Segment& newHead);
+
+    void freeLastCell();
+
+    void placeNewHead(const Segment& newHead);
+
+    void placeNewFood(std::unique_ptr<Event> e);
+
     IPort& m_displayPort;
     IPort& m_foodPort;
     IPort& m_scorePort;

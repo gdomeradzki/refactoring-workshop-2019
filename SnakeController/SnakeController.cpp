@@ -68,61 +68,24 @@ void Controller::receive(std::unique_ptr<Event> e)
     try {
         auto const& timerEvent = *dynamic_cast<EventT<TimeoutInd> const&>(*e);
 
-        Segment const& currentHead = m_segments.front();
+        Segment newHead = calculateNewHead();
 
-        Segment newHead;
-        newHead.x = currentHead.x + ((m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
-        newHead.y = currentHead.y + (not (m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
-        newHead.ttl = currentHead.ttl;
-
-        bool lost = false;
-
-        for (auto segment : m_segments) {
-            if (segment.x == newHead.x and segment.y == newHead.y) {
-                m_scorePort.send(std::make_unique<EventT<LooseInd>>());
-                lost = true;
-                break;
-            }
-        }
+        bool lost = checkIfSelfCollision(newHead);
 
         if (not lost) {
-            if (std::make_pair(newHead.x, newHead.y) == m_foodPosition) {
+            if (checkIfAteFood(newHead)) {
                 m_scorePort.send(std::make_unique<EventT<ScoreInd>>());
                 m_foodPort.send(std::make_unique<EventT<FoodReq>>());
-            } else if (newHead.x < 0 or newHead.y < 0 or
-                       newHead.x >= m_mapDimension.first or
-                       newHead.y >= m_mapDimension.second) {
+            } else if (checkIfWallCollision(newHead)) {
                 m_scorePort.send(std::make_unique<EventT<LooseInd>>());
                 lost = true;
             } else {
-                for (auto &segment : m_segments) {
-                    if (not --segment.ttl) {
-                        DisplayInd l_evt;
-                        l_evt.x = segment.x;
-                        l_evt.y = segment.y;
-                        l_evt.value = Cell_FREE;
-
-                        m_displayPort.send(std::make_unique<EventT<DisplayInd>>(l_evt));
-                    }
-                }
+                freeLastCell();
             }
         }
 
         if (not lost) {
-            m_segments.push_front(newHead);
-            DisplayInd placeNewHead;
-            placeNewHead.x = newHead.x;
-            placeNewHead.y = newHead.y;
-            placeNewHead.value = Cell_SNAKE;
-
-            m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
-
-            m_segments.erase(
-                std::remove_if(
-                    m_segments.begin(),
-                    m_segments.end(),
-                    [](auto const& segment){ return not (segment.ttl > 0); }),
-                m_segments.end());
+            placeNewHead(newHead);
         }
     } catch (std::bad_cast&) {
         try {
@@ -132,12 +95,108 @@ void Controller::receive(std::unique_ptr<Event> e)
                 m_currentDirection = direction;
             }
         } catch (std::bad_cast&) {
+            placeNewFood(std::move(e));
+        }
+    }
+}
+
+    Controller::Segment Controller::calculateNewHead() {
+        Segment const& currentHead = m_segments.front();
+
+        return {currentHead.x + ((m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0),
+                currentHead.y + (not (m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0),
+                currentHead.ttl};
+    }
+
+    bool Controller::checkIfSelfCollision(const Controller::Segment& newHead) {
+        for (auto segment : m_segments) {
+            if (segment.x == newHead.x and segment.y == newHead.y) {
+                m_scorePort.send(std::make_unique<EventT<LooseInd>>());
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool Controller::checkIfWallCollision(const Controller::Segment& newHead) {
+        return newHead.x < 0
+            or newHead.y < 0
+            or newHead.x >= m_mapDimension.first
+            or newHead.y >= m_mapDimension.second;
+    }
+
+    bool Controller::checkIfAteFood(const Controller::Segment& newHead) {
+        return std::make_pair(newHead.x, newHead.y) == m_foodPosition;
+    }
+
+    void Controller::freeLastCell() {
+        for (auto &segment : m_segments) {
+            if (not --segment.ttl) {
+                DisplayInd l_evt;
+                l_evt.x = segment.x;
+                l_evt.y = segment.y;
+                l_evt.value = Cell_FREE;
+
+                m_displayPort.send(std::make_unique<EventT<DisplayInd>>(l_evt));
+            }
+        }
+    }
+
+    void Controller::placeNewHead(const Controller::Segment& newHead) {
+        m_segments.push_front(newHead);
+        DisplayInd placeNewHead;
+        placeNewHead.x = newHead.x;
+        placeNewHead.y = newHead.y;
+        placeNewHead.value = Cell_SNAKE;
+
+        m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
+
+        m_segments.erase(
+                std::remove_if(
+                        m_segments.begin(),
+                        m_segments.end(),
+                        [](auto const& segment){ return not (segment.ttl > 0); }),
+                m_segments.end());
+    }
+
+    void Controller::placeNewFood(std::unique_ptr<Event> e) {
+        try {
+            auto receivedFood = *dynamic_cast<EventT<FoodInd> const&>(*e);
+
+            bool requestedFoodCollidedWithSnake = false;
+            for (auto const& segment : m_segments) {
+                if (segment.x == receivedFood.x and segment.y == receivedFood.y) {
+                    requestedFoodCollidedWithSnake = true;
+                    break;
+                }
+            }
+
+            if (requestedFoodCollidedWithSnake) {
+                m_foodPort.send(std::make_unique<EventT<FoodReq>>());
+            } else {
+                DisplayInd clearOldFood;
+                clearOldFood.x = m_foodPosition.first;
+                clearOldFood.y = m_foodPosition.second;
+                clearOldFood.value = Cell_FREE;
+                m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearOldFood));
+
+                DisplayInd placeNewFood;
+                placeNewFood.x = receivedFood.x;
+                placeNewFood.y = receivedFood.y;
+                placeNewFood.value = Cell_FOOD;
+                m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
+            }
+
+            m_foodPosition = std::make_pair(receivedFood.x, receivedFood.y);
+
+        } catch (std::bad_cast&) {
             try {
-                auto receivedFood = *dynamic_cast<EventT<FoodInd> const&>(*e);
+                auto requestedFood = *dynamic_cast<EventT<FoodResp> const&>(*e);
 
                 bool requestedFoodCollidedWithSnake = false;
                 for (auto const& segment : m_segments) {
-                    if (segment.x == receivedFood.x and segment.y == receivedFood.y) {
+                    if (segment.x == requestedFood.x and segment.y == requestedFood.y) {
                         requestedFoodCollidedWithSnake = true;
                         break;
                     }
@@ -146,50 +205,18 @@ void Controller::receive(std::unique_ptr<Event> e)
                 if (requestedFoodCollidedWithSnake) {
                     m_foodPort.send(std::make_unique<EventT<FoodReq>>());
                 } else {
-                    DisplayInd clearOldFood;
-                    clearOldFood.x = m_foodPosition.first;
-                    clearOldFood.y = m_foodPosition.second;
-                    clearOldFood.value = Cell_FREE;
-                    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearOldFood));
-
                     DisplayInd placeNewFood;
-                    placeNewFood.x = receivedFood.x;
-                    placeNewFood.y = receivedFood.y;
+                    placeNewFood.x = requestedFood.x;
+                    placeNewFood.y = requestedFood.y;
                     placeNewFood.value = Cell_FOOD;
                     m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
                 }
 
-                m_foodPosition = std::make_pair(receivedFood.x, receivedFood.y);
-
+                m_foodPosition = std::make_pair(requestedFood.x, requestedFood.y);
             } catch (std::bad_cast&) {
-                try {
-                    auto requestedFood = *dynamic_cast<EventT<FoodResp> const&>(*e);
-
-                    bool requestedFoodCollidedWithSnake = false;
-                    for (auto const& segment : m_segments) {
-                        if (segment.x == requestedFood.x and segment.y == requestedFood.y) {
-                            requestedFoodCollidedWithSnake = true;
-                            break;
-                        }
-                    }
-
-                    if (requestedFoodCollidedWithSnake) {
-                        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
-                    } else {
-                        DisplayInd placeNewFood;
-                        placeNewFood.x = requestedFood.x;
-                        placeNewFood.y = requestedFood.y;
-                        placeNewFood.value = Cell_FOOD;
-                        m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
-                    }
-
-                    m_foodPosition = std::make_pair(requestedFood.x, requestedFood.y);
-                } catch (std::bad_cast&) {
-                    throw UnexpectedEventException();
-                }
+                throw UnexpectedEventException();
             }
         }
     }
-}
 
 } // namespace Snake
