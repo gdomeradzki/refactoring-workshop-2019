@@ -87,7 +87,7 @@ Controller::Controller(IPort& displayPort, IPort& foodPort, IPort& scorePort, st
     std::istringstream istr(initialConfiguration);
 
     m_world = readWorld(istr);
-    m_segments = std::make_unique<Segments>(readDirection(istr));
+    m_segments = std::make_unique<Segments>(readDirection(istr), m_displayPort, m_foodPort, m_scorePort);
 
     int length;
     istr >> length;
@@ -132,7 +132,7 @@ void Controller::sendClearOldFood()
 void Controller::handleTimeoutInd()
 {
     auto newHead = m_segments->nextHead();
-    m_segments->updateSegmentsIfSuccessfullMove(newHead,*m_world, m_scorePort, m_foodPort, m_displayPort);
+    m_segments->updateSegmentsIfSuccessfullMove(newHead,*m_world);
 }
 
 void Controller::handleDirectionInd(std::unique_ptr<Event> e)
