@@ -10,6 +10,7 @@
 
 namespace Snake
 {
+class World;
 
 class Segments
 {

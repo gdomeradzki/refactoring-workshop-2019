@@ -106,26 +106,16 @@ Controller::Controller(IPort& displayPort, IPort& foodPort, IPort& scorePort, st
 Controller::~Controller()
 {}
 
-void Controller::sendPlaceNewFood(Position position)
+void Controller::handleFoodInd(std::unique_ptr<Event> e)
 {
-    m_world->setFoodPosition(position);
-
-    DisplayInd placeNewFood;
-    placeNewFood.position = position;
-    placeNewFood.value = Cell_FOOD;
-
-    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
+     m_world -> updateFoodPosition(payload<FoodInd>(*e).position, std::bind(&Controller::sendClearOldFood, this), m_displayPort, m_foodPort, *m_segments);
 }
 
-void Controller::sendClearOldFood()
+void Controller::handleFoodResp(std::unique_ptr<Event> e)
 {
-    auto foodPosition = m_world->getFoodPosition();
+    static auto noCleanPolicy = []{};
 
-    DisplayInd clearOldFood;
-    clearOldFood.position = foodPosition;
-    clearOldFood.value = Cell_FREE;
-
-    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearOldFood));
+    m_world -> updateFoodPosition(payload<FoodResp>(*e).position, noCleanPolicy, m_displayPort, m_foodPort,  *m_segments);
 }
 
 void Controller::handleTimeoutInd()
@@ -137,29 +127,6 @@ void Controller::handleTimeoutInd()
 void Controller::handleDirectionInd(std::unique_ptr<Event> e)
 {
     m_segments->updateDirection(payload<DirectionInd>(*e).direction);
-}
-
-void Controller::updateFoodPosition(Position position, std::function<void()> clearPolicy)
-{
-    if (m_segments->isCollision(position) or not m_world->contains(position)) {
-        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
-        return;
-    }
-
-    clearPolicy();
-    sendPlaceNewFood(position);
-}
-
-void Controller::handleFoodInd(std::unique_ptr<Event> e)
-{
-    updateFoodPosition(payload<FoodInd>(*e).position, std::bind(&Controller::sendClearOldFood, this));
-}
-
-void Controller::handleFoodResp(std::unique_ptr<Event> e)
-{
-    static auto noCleanPolicy = []{};
-
-    updateFoodPosition(payload<FoodResp>(*e).position, noCleanPolicy);
 }
 
 void Controller::handlePauseInd(std::unique_ptr<Event> e)
@@ -189,6 +156,17 @@ void Controller::receive(std::unique_ptr<Event> e)
         default:
             throw UnexpectedEventException();
     }
+}
+
+void  Controller::sendClearOldFood()
+{
+    auto foodPosition = m_world->getFoodPosition();
+
+    DisplayInd clearOldFood;
+    clearOldFood.position = foodPosition;
+    clearOldFood.value = Cell_FREE;
+
+    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearOldFood));
 }
 
 } // namespace Snake
