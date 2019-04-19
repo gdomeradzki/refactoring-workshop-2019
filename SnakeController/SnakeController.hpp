@@ -41,7 +41,7 @@ private:
     IPort& m_scorePort;
 
     std::unique_ptr<World> m_world;
-    std::unique_ptr<Segments> m_segments;
+    std::unique_ptr<Segments> snake_segments;
 
     void handleTimeoutInd();
     void handleDirectionInd(std::unique_ptr<Event>);
@@ -50,12 +50,9 @@ private:
     void handlePauseInd(std::unique_ptr<Event>);
 
     void updateSegmentsIfSuccessfullMove(Position position);
-    void addHeadSegment(Position position);
     void removeTailSegmentIfNotScored(Position position);
-    void removeTailSegment();
 
-    void updateFoodPosition(Position position, std::function<void()> clearPolicy);
-    void sendClearOldFood();
+    void updateFoodPosition(Position position);
     void sendPlaceNewFood(Position position);
 
     bool m_paused;
