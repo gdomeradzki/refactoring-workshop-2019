@@ -29,8 +29,8 @@ bool perpendicular(Direction dir1, Direction dir2)
 }
 } // namespace
 
-Segments::Segments(Direction direction)
-    : m_headDirection(direction)
+Segments::Segments(Direction direction, World& world, IPort& foodPort, IPort& scorePort, IPort& displayPort)
+    : m_headDirection(direction), m_world(world),  m_foodPort(foodPort), m_scorePort(scorePort), m_displayPort(displayPort)
 {}
 
 void Segments::addSegment(Position position)
@@ -77,6 +77,49 @@ void Segments::updateDirection(Direction newDirection)
 unsigned Segments::size() const
 {
     return m_segments.size();
+}
+
+void Segments::removeTailSegment(IPort& displayPort)
+{
+    auto tailPosition = removeTail();
+
+    DisplayInd clearTail;
+    clearTail.position = tailPosition;
+    clearTail.value = Cell_FREE;
+
+    displayPort.send(std::make_unique<EventT<DisplayInd>>(clearTail));
+}
+
+void Segments::addHeadSegment(Position position)
+{
+    addHead(position);
+
+    DisplayInd placeNewHead;
+    placeNewHead.position = position;
+    placeNewHead.value = Cell_SNAKE;
+
+    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
+}
+
+void Segments::removeTailSegmentIfNotScored(Position position)
+{
+    if (position == m_world.getFoodPosition()) {
+        ScoreInd scoreIndication{size() - 1};
+        m_scorePort.send(std::make_unique<EventT<ScoreInd>>(scoreIndication));
+        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
+    } else {
+        removeTailSegment(m_displayPort);
+    }
+}
+
+void Segments::updateSegmentsIfSuccessfullMove(Position position)
+{
+    if (isCollision(position) or not m_world.contains(position)) {
+        m_scorePort.send(std::make_unique<EventT<LooseInd>>());
+    } else {
+        addHeadSegment(position);
+        removeTailSegmentIfNotScored(position);
+    }
 }
 
 } // namespace Snake
