@@ -1,11 +1,12 @@
 #include "SnakeWorld.hpp"
+#include <functional>
 
 namespace Snake
 {
 
-World::World(Dimension dimension, Position food, IPort& displayPort)
+World::World(Dimension dimension, Position food, IPort& displayPort, IPort& foodPort)
     : m_foodPosition(food),
-      m_dimension(dimension),m_displayPort(displayPort)
+      m_dimension(dimension),m_displayPort(displayPort),m_foodPort(foodPort)
 {}
 
 
@@ -34,6 +35,42 @@ void World::sendPlaceNewFood(Position position)
 
     m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
 }
+
+void World::sendClearOldFood()
+{
+    auto foodPosition = getFoodPosition();
+
+    DisplayInd clearOldFood;
+    clearOldFood.position = foodPosition;
+    clearOldFood.value = Cell_FREE;
+
+    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearOldFood));
+}
+
+
+void World::updateFoodPosition(Position position,Segments & m_segments)
+{
+
+       if (m_segments.isCollision(position) or not contains(position)) {
+        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
+        return;
+    }
+    //clearPolicy();
+    sendClearOldFood();
+    sendPlaceNewFood(position);
+}
+
+void World::updateFoodPosition(Position position,Segments & m_segments, std::function<void()> clearPolicy)
+{
+
+       if (m_segments.isCollision(position) or not contains(position)) {
+        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
+        return;
+    }
+
+    sendPlaceNewFood(position);
+}
+
 
 
 } // namespace Snake

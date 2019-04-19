@@ -54,9 +54,9 @@ private:
     void removeTailSegmentIfNotScored(Position position);//snakeSegment
     void removeTailSegment();  //snakeSegment
 
-    void updateFoodPosition(Position position, std::function<void()> clearPolicy); //snakeWorld
-    void sendClearOldFood();    //snakeWorld
-    //void sendPlaceNewFood(Position position); //snakeWorld
+    //void updateFoodPosition(Position position, std::function<void()> clearPolicy); //snakeWorld
+    //void sendClearOldFood();    //snakeWorld - II
+    //void sendPlaceNewFood(Position position); //snakeWorld -  I
     IPort& getPort();
 
     bool m_paused;
