@@ -34,11 +34,21 @@ public:
     Controller& operator=(Controller const& p_rhs) = delete;
 
     void receive(std::unique_ptr<Event> e) override;
+    struct Ports 
+    {
+        Ports(IPort& displayPort, IPort& foodPort, IPort& scorePort) :
+            m_displayPort(displayPort),
+            m_foodPort(foodPort),
+            m_scorePort(scorePort) {}
+        IPort& m_displayPort;
+        IPort& m_foodPort;
+        IPort& m_scorePort;
+    };
 
 private:
-    IPort& m_displayPort;
-    IPort& m_foodPort;
-    IPort& m_scorePort;
+
+
+    Ports ports;    
 
     std::unique_ptr<World> m_world;
     std::unique_ptr<Segments> m_segments;
@@ -48,6 +58,7 @@ private:
     void handleFoodInd(std::unique_ptr<Event>);
     void handleFoodResp(std::unique_ptr<Event>);
     void handlePauseInd(std::unique_ptr<Event>);
+
 
     bool m_paused;
 };
