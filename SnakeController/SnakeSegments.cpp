@@ -128,9 +128,4 @@ void Segments::removeTailSegmentIfNotScored(Position position)
         removeTailSegment();
     }
 }
-
-
-
-
-
 } // namespace Snake

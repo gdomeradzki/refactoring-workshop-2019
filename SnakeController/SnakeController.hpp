@@ -49,10 +49,6 @@ private:
     void handleFoodResp(std::unique_ptr<Event>);
     void handlePauseInd(std::unique_ptr<Event>);
 
-    void updateFoodPosition(Position position, std::function<void()> clearPolicy);
-    void sendClearOldFood();
-    void sendPlaceNewFood(Position position);
-
     bool m_paused;
 };
 
