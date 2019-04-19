@@ -130,20 +130,12 @@ void Controller::sendClearOldFood()
 
 
 
-void Controller::updateSegmentsIfSuccessfullMove(Position position)
-{
-    if (m_segments->isCollision(position) or not m_world->contains(position)) {
-        m_scorePort.send(std::make_unique<EventT<LooseInd>>());
-    } else {
-        m_segments->addHeadSegment(position);
-        m_segments->removeTailSegmentIfNotScored(position, m_world->getFoodPosition());
-    }
-}
+
 
 void Controller::handleTimeoutInd()
 {
     auto newHead = m_segments->nextHead();
-    updateSegmentsIfSuccessfullMove(newHead);
+    m_segments->updateSegmentsIfSuccessfullMove(newHead, !m_world->contains(newHead), m_world->getFoodPosition());
 }
 
 void Controller::handleDirectionInd(std::unique_ptr<Event> e)

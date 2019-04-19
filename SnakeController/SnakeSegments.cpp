@@ -87,7 +87,15 @@ void Segments::removeTailSegmentIfNotScored(Position position, Position foodPosi
     }
 }
 
-
+void Segments::updateSegmentsIfSuccessfullMove(Position position, bool notContains, Position foodPosition)
+{
+    if (isCollision(position) or notContains) {
+        m_scorePort.send(std::make_unique<EventT<LooseInd>>());
+    } else {
+        addHeadSegment(position);
+        removeTailSegmentIfNotScored(position, foodPosition);
+    }
+}
 Position Segments::removeTail()
 {
     auto tail = m_segments.back();

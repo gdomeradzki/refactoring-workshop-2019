@@ -18,6 +18,7 @@ public:
     void addHeadSegment(Position position);
     void removeTailSegmentIfNotScored(Position position, Position foodPosition);
     void removeTailSegment();
+    void updateSegmentsIfSuccessfullMove(Position position, bool notContains, Position foodPosition);
     bool isCollision(Position position) const;
     void addSegment(Position position);
     void addHead(Position position);
