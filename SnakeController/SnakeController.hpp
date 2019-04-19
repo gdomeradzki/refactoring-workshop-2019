@@ -56,7 +56,6 @@ private:
 
     void updateFoodPosition(Position position, std::function<void()> clearPolicy);
     void sendClearOldFood();
-    void sendPlaceNewFood(Position position);
 
     bool m_paused;
 };

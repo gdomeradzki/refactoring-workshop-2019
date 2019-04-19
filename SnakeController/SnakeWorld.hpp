@@ -2,6 +2,7 @@
 
 #include "SnakePosition.hpp"
 #include "SnakeDimension.hpp"
+#include "IPort.hpp";
 
 namespace Snake
 {
@@ -13,6 +14,7 @@ public:
 
     void setFoodPosition(Position position);
     Position getFoodPosition() const;
+    void sendPlaceNewFood(Position position, IPort& display);
 
     bool contains(Position position) const;
 private:

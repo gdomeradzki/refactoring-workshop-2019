@@ -106,17 +106,6 @@ Controller::Controller(IPort& displayPort, IPort& foodPort, IPort& scorePort, st
 Controller::~Controller()
 {}
 
-void Controller::sendPlaceNewFood(Position position)
-{
-    m_world->setFoodPosition(position);
-
-    DisplayInd placeNewFood;
-    placeNewFood.position = position;
-    placeNewFood.value = Cell_FOOD;
-
-    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
-}
-
 void Controller::sendClearOldFood()
 {
     auto foodPosition = m_world->getFoodPosition();
@@ -190,7 +179,7 @@ void Controller::updateFoodPosition(Position position, std::function<void()> cle
     }
 
     clearPolicy();
-    sendPlaceNewFood(position);
+    m_world->sendPlaceNewFood(position, m_displayPort);
 }
 
 void Controller::handleFoodInd(std::unique_ptr<Event> e)
