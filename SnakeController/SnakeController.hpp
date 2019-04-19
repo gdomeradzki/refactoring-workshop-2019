@@ -62,9 +62,6 @@ private:
     IPort& m_scorePort;
 
 
-    //std::pair<int, int> m_mapDimension;
-    //std::pair<int, int> m_foodPosition;
-
     struct Segment
     {
         int x;
