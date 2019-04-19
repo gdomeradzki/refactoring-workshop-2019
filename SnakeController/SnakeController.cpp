@@ -117,16 +117,14 @@ void Controller::handleDirectionInd(std::unique_ptr<Event> e)
 void Controller::handleFoodInd(std::unique_ptr<Event> e)
 {
     auto position = payload<FoodInd>(*e).position;
-    m_world->updateFoodPosition(position, checkIfPositionCollideOrOutOfBonds(position), std::bind(&World::sendClearOldFood, m_world.get()));
+    m_world->updateFoodPosition(position, checkIfPositionCollideOrOutOfBonds(position), true);
 }
 
 void Controller::handleFoodResp(std::unique_ptr<Event> e)
 {
-    static auto noCleanPolicy = []{};
-
     auto position = payload<FoodResp>(*e).position;
 
-    m_world->updateFoodPosition(position, checkIfPositionCollideOrOutOfBonds(position), noCleanPolicy);
+    m_world->updateFoodPosition(position, checkIfPositionCollideOrOutOfBonds(position), false);
 }
 
 void Controller::handlePauseInd(std::unique_ptr<Event> e)

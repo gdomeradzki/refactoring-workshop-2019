@@ -17,7 +17,7 @@ public:
 
     bool contains(Position position) const;
 
-	void updateFoodPosition(Position position, bool colisionOrOutOfBonds, std::function<void()> clearPolicy);
+	void updateFoodPosition(Position position, bool colisionOrOutOfBonds, bool clearNeeded);
 	void sendClearOldFood();
 	void sendPlaceNewFood(Position position);
 private:

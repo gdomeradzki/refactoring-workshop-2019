@@ -29,14 +29,17 @@ bool World::contains(Position position) const
     return m_dimension.isInside(position);
 }
 
-void World::updateFoodPosition(Position position, bool colisionOrOutOfBonds, std::function<void()> clearPolicy)
+void World::updateFoodPosition(Position position, bool colisionOrOutOfBonds, bool clearNeeded)
 {
     if (colisionOrOutOfBonds) {
         m_foodPort.send(std::make_unique<EventT<FoodReq>>());
         return;
     }
 
-    clearPolicy();
+    if (clearNeeded) {
+        sendClearOldFood();
+    }
+
     sendPlaceNewFood(position);
 }
 
