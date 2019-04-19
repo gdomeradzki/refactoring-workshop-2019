@@ -1,6 +1,15 @@
 #include "SnakeSegments.hpp"
 
+#include "SnakeController.hpp"
+
 #include <algorithm>
+#include <sstream>
+
+#include "EventT.hpp"
+#include "IPort.hpp"
+
+#include "SnakeWorld.hpp"
+
 
 namespace Snake
 {
@@ -29,36 +38,82 @@ bool perpendicular(Direction dir1, Direction dir2)
 }
 } // namespace
 
-Segments::Segments(Direction direction)
-    : m_headDirection(direction)
+Segments::Segments(IPort& displayPort, IPort& scorePort,Direction direction)
+    : m_displayPort(displayPort),
+      m_scorePort(scorePort),
+      m_headDirection(direction)
 {}
 
 void Segments::addSegment(Position position)
 {
-    m_segments.emplace_back(position);
+    m_position.emplace_back(position);
 }
+
+void Segments::removeTailSegment()
+{
+    auto tailPosition = removeTail();
+
+    DisplayInd clearTail;
+    clearTail.position = tailPosition;
+    clearTail.value = Cell_FREE;
+
+    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearTail));
+}
+
+void Segments::addHeadSegment(Position position)
+{
+    addHead(position);
+
+    DisplayInd placeNewHead;
+    placeNewHead.position = position;
+    placeNewHead.value = Cell_SNAKE;
+
+    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
+}
+
+//void Segments::removeTailSegmentIfNotScored(Position position)
+//{
+//    if (position == m_world->getFoodPosition()) {
+//        ScoreInd scoreIndication{m_segments->size() - 1};
+//        m_scorePort.send(std::make_unique<EventT<ScoreInd>>(scoreIndication));
+//        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
+//    } else {
+//        removeTailSegment();
+//    }
+//}
+
+//void Segments::updateSegmentsIfSuccessfullMove(Position position)
+//{
+//    if (isCollision(position) or not m_world->contains(position)) {
+//        m_scorePort.send(std::make_unique<EventT<LooseInd>>());
+//    } else {
+//        addHeadSegment(position);
+//        removeTailSegmentIfNotScored(position);
+//    }
+//}
+
 
 bool Segments::isCollision(Position position) const
 {
-    return m_segments.end() !=  std::find_if(m_segments.cbegin(), m_segments.cend(),
+    return m_position.end() !=  std::find_if(m_position.cbegin(), m_position.cend(),
         [position](auto const& segment){ return segment.x == position.x and segment.y == position.y; });
 }
 
 void Segments::addHead(Position position)
 {
-    m_segments.push_front(position);
+    m_position.push_front(position);
 }
 
 Position Segments::removeTail()
 {
-    auto tail = m_segments.back();
-    m_segments.pop_back();
+    auto tail = m_position.back();
+    m_position.pop_back();
     return tail;
 }
 
 Position Segments::nextHead() const
 {
-    Position const& currentHead = m_segments.front();
+    Position const& currentHead = m_position.front();
 
     Position newHead;
     newHead.x = currentHead.x + (isHorizontal(m_headDirection) ? isPositive(m_headDirection) ? 1 : -1 : 0);
@@ -76,7 +131,7 @@ void Segments::updateDirection(Direction newDirection)
 
 unsigned Segments::size() const
 {
-    return m_segments.size();
+    return m_position.size();
 }
 
 } // namespace Snake
