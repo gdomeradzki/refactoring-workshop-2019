@@ -5,6 +5,7 @@
 
 #include "IEventHandler.hpp"
 #include "SnakeInterface.hpp"
+#include "SnakeSegments.hpp"
 
 class Event;
 class IPort;
@@ -34,6 +35,7 @@ public:
     Controller& operator=(Controller const& p_rhs) = delete;
 
     void receive(std::unique_ptr<Event> e) override;
+    //Segments segment;
 
 private:
     IPort& m_displayPort;
@@ -49,10 +51,10 @@ private:
     void handleFoodResp(std::unique_ptr<Event>);
     void handlePauseInd(std::unique_ptr<Event>);
 
-    void updateSegmentsIfSuccessfullMove(Position position);
-    void addHeadSegment(Position position);
-    void removeTailSegmentIfNotScored(Position position);
-    void removeTailSegment();
+//    void updateSegmentsIfSuccessfullMove(Position position);
+//    void addHeadSegment(Position position);
+//    void removeTailSegmentIfNotScored(Position position);
+//    void removeTailSegment();
 
     void updateFoodPosition(Position position, std::function<void()> clearPolicy);
     void sendClearOldFood();
