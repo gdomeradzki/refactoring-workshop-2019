@@ -31,6 +31,7 @@ public:
         void removeTailSegmentIfNotScored(Position position);
           void updateSegmentsIfSuccessfullMove(Position position);
             void addHeadSegment(Position position);
+           
 private:
     Direction m_headDirection;
     std::list<Position> m_segments;

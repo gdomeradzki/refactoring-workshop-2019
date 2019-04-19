@@ -23,14 +23,26 @@ bool World::contains(Position position) const
 {
     return m_dimension.isInside(position);
 }
-// void World::sendClearOldFood()
-// {
-//     auto foodPosition =getFoodPosition();
+void World::sendClearOldFood()
+{
+    auto foodPosition =getFoodPosition();
 
-//     DisplayInd clearOldFood;
-//     clearOldFood.position = foodPosition;
-//     clearOldFood.value = Cell_FREE;
+    DisplayInd clearOldFood;
+    clearOldFood.position = foodPosition;
+    clearOldFood.value = Cell_FREE;
 
-//     m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearOldFood));
-// }
+    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearOldFood));
+}
+
+
+void World::updateFoodPosition(std::weak_ptr<Segments>przekazane, Position position, std::function<void()> clearPolicy)
+{
+    if ((*przekazane)->isCollision(position) or not contains(position)) {
+        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
+        return;
+    }
+
+    clearPolicy();
+    sendPlaceNewFood(position);
+}
 } // namespace Snake

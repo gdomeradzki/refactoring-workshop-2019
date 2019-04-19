@@ -41,7 +41,7 @@ private:
     IPort& m_scorePort;
 
     std::unique_ptr<World> m_world;
-    std::unique_ptr<Segments> m_segments;
+    std::shared_ptr<Segments> m_segments;
 
     void handleTimeoutInd();
     void handleDirectionInd(std::unique_ptr<Event>);
@@ -54,8 +54,8 @@ private:
 
    
 
-    void updateFoodPosition(Position position, std::function<void()> clearPolicy);
-    void sendClearOldFood();
+
+   
     void sendPlaceNewFood(Position position);
 
     bool m_paused;
