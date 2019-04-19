@@ -35,6 +35,9 @@ public:
 
     void receive(std::unique_ptr<Event> e) override;
 
+
+    
+
 private:
     IPort& m_displayPort;
     IPort& m_foodPort;
@@ -49,14 +52,14 @@ private:
     void handleFoodResp(std::unique_ptr<Event>);
     void handlePauseInd(std::unique_ptr<Event>);
 
+// Segments
     void updateSegmentsIfSuccessfullMove(Position position);
     void addHeadSegment(Position position);
     void removeTailSegmentIfNotScored(Position position);
     void removeTailSegment();
 
-    void updateFoodPosition(Position position, std::function<void()> clearPolicy);
+// World
     void sendClearOldFood();
-    void sendPlaceNewFood(Position position);
 
     bool m_paused;
 };
