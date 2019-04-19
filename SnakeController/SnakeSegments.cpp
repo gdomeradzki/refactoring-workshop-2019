@@ -1,6 +1,9 @@
 #include "SnakeSegments.hpp"
-
+#include "EventT.hpp"
+#include "IPort.hpp"
 #include <algorithm>
+#include <memory>
+#include "SnakeWorld.hpp"
 
 namespace Snake
 {
@@ -29,8 +32,11 @@ bool perpendicular(Direction dir1, Direction dir2)
 }
 } // namespace
 
-Segments::Segments(Direction direction)
-    : m_headDirection(direction)
+Segments::Segments(Direction direction,IPort& displayPort, IPort& foodPort, IPort& scorePort)
+    :   m_headDirection(direction),
+        m_displayPort(displayPort),
+        m_foodPort(foodPort),
+        m_scorePort(scorePort)
 {}
 
 void Segments::addSegment(Position position)
@@ -78,5 +84,51 @@ unsigned Segments::size() const
 {
     return m_segments.size();
 }
+
+void Segments::updateSegmentsIfSuccessfullMove(Position position,bool contains,Position FoodPosition)
+    {
+        if (isCollision(position) or not contains) {
+            m_scorePort.send(std::make_unique<EventT<LooseInd>>());
+        } else {
+            addHeadSegment(position);
+            removeTailSegmentIfNotScored(position,FoodPosition);
+        }
+    }
+
+    void Segments::removeTailSegmentIfNotScored(Position position,Position FoodPosition)
+    {
+        if (position == FoodPosition) {
+            ScoreInd scoreIndication{size() - 1};
+            m_scorePort.send(std::make_unique<EventT<ScoreInd>>(scoreIndication));
+            m_foodPort.send(std::make_unique<EventT<FoodReq>>());
+        } else {
+            removeTailSegment();
+        }
+    }
+
+    void Segments::removeTailSegment()
+    {
+        auto tailPosition = removeTail();
+
+        DisplayInd clearTail;
+        clearTail.position = tailPosition;
+        clearTail.value = Cell_FREE;
+
+        m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearTail));
+    }
+
+    void Segments::addHeadSegment(Position position)
+    {
+        addHead(position);
+
+        DisplayInd placeNewHead;
+        placeNewHead.position = position;
+        placeNewHead.value = Cell_SNAKE;
+
+        m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
+    }
+
+
+
 
 } // namespace Snake
