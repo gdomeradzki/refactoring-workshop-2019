@@ -73,6 +73,17 @@ void Segments::addHeadSegment(Position position, IPort& displayPort)
     displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
 }
 
+void Segments::updateSegmentsIfSuccessfullMove(Position position, IPort& displayPort, World& world,
+                                        IPort& scorePort, IPort& foodPort)
+{
+    if (isCollision(position) or not world.contains(position)) {
+        scorePort.send(std::make_unique<EventT<LooseInd>>());
+    } else {
+        addHeadSegment(position, displayPort);
+        removeTailSegmentIfNotScored(position, displayPort, world, scorePort, foodPort);
+    }
+}
+
 bool Segments::isCollision(Position position) const
 {
     return m_segments.end() !=  std::find_if(m_segments.cbegin(), m_segments.cend(),

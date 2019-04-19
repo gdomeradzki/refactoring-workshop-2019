@@ -49,9 +49,6 @@ private:
     void handleFoodResp(std::unique_ptr<Event>);
     void handlePauseInd(std::unique_ptr<Event>);
 
-    void updateSegmentsIfSuccessfullMove(Position position);
-
-
     bool m_paused;
 };
 
