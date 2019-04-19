@@ -29,7 +29,6 @@ public:
     void addHeadSegment(Position position);
     void removeTailSegment(IPort& m_displayPort);
 
-
 private:
     Direction m_headDirection;
     std::list<Position> m_segments;

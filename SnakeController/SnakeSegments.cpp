@@ -94,4 +94,5 @@ void Segments::removeTailSegment(IPort& m_displayPort)
 
     m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearTail));
 }
+
 } // namespace Snake
