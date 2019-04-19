@@ -51,7 +51,6 @@ private:
 
     void updateSegmentsIfSuccessfullMove(Position position);
     void addHeadSegment(Position position);
-    void removeTailSegmentIfNotScored(Position position);
 
     bool m_paused;
 };

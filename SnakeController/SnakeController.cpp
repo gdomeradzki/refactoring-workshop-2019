@@ -117,24 +117,13 @@ void Controller::addHeadSegment(Position position)
     m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
 }
 
-void Controller::removeTailSegmentIfNotScored(Position position)
-{
-    if (position == m_world->getFoodPosition()) {
-        ScoreInd scoreIndication{m_segments->size() - 1};
-        m_scorePort.send(std::make_unique<EventT<ScoreInd>>(scoreIndication));
-        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
-    } else {
-        m_segments->removeTailSegment(m_displayPort);
-    }
-}
-
 void Controller::updateSegmentsIfSuccessfullMove(Position position)
 {
     if (m_segments->isCollision(position) or not m_world->contains(position)) {
         m_scorePort.send(std::make_unique<EventT<LooseInd>>());
     } else {
         addHeadSegment(position);
-        removeTailSegmentIfNotScored(position);
+        m_segments->removeTailSegmentIfNotScored(position, m_displayPort, *m_world, m_scorePort, m_foodPort);
     }
 }
 

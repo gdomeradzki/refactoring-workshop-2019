@@ -8,7 +8,7 @@
 
 namespace Snake
 {
-
+class World;
 class Segments
 {
 public:
@@ -17,6 +17,8 @@ public:
     bool isCollision(Position position) const;
     void addSegment(Position position);
     void removeTailSegment(IPort& displayPort);
+    void removeTailSegmentIfNotScored(Position position, IPort& displayPort, World& world,
+                                        IPort& scorePort, IPort& foodPort);
     void addHead(Position position);
     Position nextHead() const;
     Position removeTail();

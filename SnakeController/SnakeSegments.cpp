@@ -1,6 +1,6 @@
 #include "SnakeSegments.hpp"
 #include "EventT.hpp"
-
+#include "SnakeWorld.hpp"
 #include <algorithm>
 
 namespace Snake
@@ -48,6 +48,18 @@ void Segments::removeTailSegment(IPort& displayPort)
     clearTail.value = Cell_FREE;
 
     displayPort.send(std::make_unique<EventT<DisplayInd>>(clearTail));
+}
+
+void Segments::removeTailSegmentIfNotScored(Position position, IPort& displayPort, World& world,
+                                            IPort& scorePort, IPort& foodPort)
+{
+    if (position == world.getFoodPosition()) {
+        ScoreInd scoreIndication{size() - 1};
+        scorePort.send(std::make_unique<EventT<ScoreInd>>(scoreIndication));
+        foodPort.send(std::make_unique<EventT<FoodReq>>());
+    } else {
+        removeTailSegment(displayPort);
+    }
 }
 
 bool Segments::isCollision(Position position) const
