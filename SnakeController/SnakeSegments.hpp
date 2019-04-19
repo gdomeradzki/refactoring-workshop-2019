@@ -27,7 +27,7 @@ public:
     void updateSegmentsIfSuccessfullMove(Position position);
     void addHeadSegment(Position position);
     void removeTailSegmentIfNotScored(Position position);
-    void removeTailSegment(IPort& displayPort);
+    void removeTailSegment();
 private:
     Direction m_headDirection;
     std::list<Position> m_segments;
