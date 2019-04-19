@@ -4,6 +4,7 @@
 
 #include "SnakeInterface.hpp"
 #include "SnakePosition.hpp"
+#include "IPort.hpp"
 
 namespace Snake
 {
@@ -15,6 +16,7 @@ public:
 
     bool isCollision(Position position) const;
     void addSegment(Position position);
+    void removeTailSegment(IPort& displayPort);
     void addHead(Position position);
     Position nextHead() const;
     Position removeTail();

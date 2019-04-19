@@ -52,10 +52,6 @@ private:
     void updateSegmentsIfSuccessfullMove(Position position);
     void addHeadSegment(Position position);
     void removeTailSegmentIfNotScored(Position position);
-    void removeTailSegment();
-
-    // void updateFoodPosition(Position position, std::function<void(IPort&)> clearPolicy);
-    //void sendClearOldFood();
 
     bool m_paused;
 };

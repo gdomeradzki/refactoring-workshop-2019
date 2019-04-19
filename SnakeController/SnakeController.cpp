@@ -106,28 +106,6 @@ Controller::Controller(IPort& displayPort, IPort& foodPort, IPort& scorePort, st
 Controller::~Controller()
 {}
 
-// void Controller::sendClearOldFood()
-// {
-//     auto foodPosition = m_world->getFoodPosition();
-
-//     DisplayInd clearOldFood;
-//     clearOldFood.position = foodPosition;
-//     clearOldFood.value = Cell_FREE;
-
-//     m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearOldFood));
-// }
-
-void Controller::removeTailSegment()
-{
-    auto tailPosition = m_segments->removeTail();
-
-    DisplayInd clearTail;
-    clearTail.position = tailPosition;
-    clearTail.value = Cell_FREE;
-
-    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearTail));
-}
-
 void Controller::addHeadSegment(Position position)
 {
     m_segments->addHead(position);
@@ -146,7 +124,7 @@ void Controller::removeTailSegmentIfNotScored(Position position)
         m_scorePort.send(std::make_unique<EventT<ScoreInd>>(scoreIndication));
         m_foodPort.send(std::make_unique<EventT<FoodReq>>());
     } else {
-        removeTailSegment();
+        m_segments->removeTailSegment(m_displayPort);
     }
 }
 
@@ -170,17 +148,6 @@ void Controller::handleDirectionInd(std::unique_ptr<Event> e)
 {
     m_segments->updateDirection(payload<DirectionInd>(*e).direction);
 }
-
-// void Controller::updateFoodPosition(Position position, std::function<void(IPort&)> clearPolicy)
-// {
-//     if (m_segments->isCollision(position) or not m_world->contains(position)) {
-//         m_foodPort.send(std::make_unique<EventT<FoodReq>>());
-//         return;
-//     }
-
-//     clearPolicy(m_displayPort);
-//     m_world->sendPlaceNewFood(position, m_displayPort);
-// }
 
 void Controller::handleFoodInd(std::unique_ptr<Event> e)
 {

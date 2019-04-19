@@ -1,4 +1,5 @@
 #include "SnakeSegments.hpp"
+#include "EventT.hpp"
 
 #include <algorithm>
 
@@ -36,6 +37,17 @@ Segments::Segments(Direction direction)
 void Segments::addSegment(Position position)
 {
     m_segments.emplace_back(position);
+}
+
+void Segments::removeTailSegment(IPort& displayPort)
+{
+    auto tailPosition = removeTail();
+
+    DisplayInd clearTail;
+    clearTail.position = tailPosition;
+    clearTail.value = Cell_FREE;
+
+    displayPort.send(std::make_unique<EventT<DisplayInd>>(clearTail));
 }
 
 bool Segments::isCollision(Position position) const
