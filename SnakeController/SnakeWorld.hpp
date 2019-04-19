@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SnakeController.hpp"
 #include "SnakePosition.hpp"
 #include "SnakeDimension.hpp"
 
@@ -15,6 +16,10 @@ public:
     Position getFoodPosition() const;
 
     bool contains(Position position) const;
+
+    void updateFoodPosition(Position position, bool policy, Controller& controller);
+    void sendClearOldFood(Controller& controller);
+    void sendPlaceNewFood(Position position, Controller& controller);
 private:
     Position m_foodPosition;
     Dimension m_dimension;
