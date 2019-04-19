@@ -2,6 +2,7 @@
 #include "SnakeWorld.hpp"
 #include "EventT.hpp"
 #include "SnakeInterface.hpp"
+#include "SnakeSegments.hpp"
 
 namespace Snake
 {
@@ -29,9 +30,9 @@ bool World::contains(Position position) const
     return m_dimension.isInside(position);
 }
 
-void World::updateFoodPosition(Position position, bool colisionOrOutOfBonds, bool clearNeeded)
+void World::updateFoodPosition(Position position, bool clearNeeded, Segments& segments)
 {
-    if (colisionOrOutOfBonds) {
+    if (segments.isCollision(position) or not contains(position)) {
         m_foodPort.send(std::make_unique<EventT<FoodReq>>());
         return;
     }

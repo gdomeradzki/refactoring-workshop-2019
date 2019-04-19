@@ -45,8 +45,6 @@ private:
     void handleFoodResp(std::unique_ptr<Event>);
     void handlePauseInd(std::unique_ptr<Event>);
 
-    bool checkIfPositionCollideOrOutOfBonds(Position position);
-
     bool m_paused;
 };
 

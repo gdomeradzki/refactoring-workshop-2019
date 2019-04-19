@@ -9,6 +9,8 @@
 namespace Snake
 {
 
+class World;
+
 class Segments
 {
 public:
@@ -22,9 +24,9 @@ public:
     void updateDirection(Direction newDirection);
     unsigned size() const;
 
-	void updateSegmentsIfSuccessfullMove(Position headPosition, bool colisionOrOutOfBonds, Position foodPosition);
+	void updateSegmentsIfSuccessfullMove(Position position, World& world);
 	void addHeadSegment(Position position);
-	void removeTailSegmentIfNotScored(Position headPosition, Position foodPosition);
+	void removeTailSegmentIfNotScored(Position position, World& world);
 	void removeTailSegment();
 private:
 	IPort& m_displayPort;

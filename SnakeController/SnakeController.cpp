@@ -106,7 +106,7 @@ Controller::~Controller()
 void Controller::handleTimeoutInd()
 {
     auto newHead = m_segments->nextHead();
-    m_segments->updateSegmentsIfSuccessfullMove(newHead, checkIfPositionCollideOrOutOfBonds(newHead), m_world->getFoodPosition());
+    m_segments->updateSegmentsIfSuccessfullMove(newHead, *m_world);
 }
 
 void Controller::handleDirectionInd(std::unique_ptr<Event> e)
@@ -117,14 +117,14 @@ void Controller::handleDirectionInd(std::unique_ptr<Event> e)
 void Controller::handleFoodInd(std::unique_ptr<Event> e)
 {
     auto position = payload<FoodInd>(*e).position;
-    m_world->updateFoodPosition(position, checkIfPositionCollideOrOutOfBonds(position), true);
+    m_world->updateFoodPosition(position, true, *m_segments);
 }
 
 void Controller::handleFoodResp(std::unique_ptr<Event> e)
 {
     auto position = payload<FoodResp>(*e).position;
 
-    m_world->updateFoodPosition(position, checkIfPositionCollideOrOutOfBonds(position), false);
+    m_world->updateFoodPosition(position, false, *m_segments);
 }
 
 void Controller::handlePauseInd(std::unique_ptr<Event> e)
@@ -154,10 +154,6 @@ void Controller::receive(std::unique_ptr<Event> e)
         default:
             throw UnexpectedEventException();
     }
-}
-
-bool Controller::checkIfPositionCollideOrOutOfBonds(Position position) {
-    return m_segments->isCollision(position) or not m_world->contains(position);
 }
 
 } // namespace Snake

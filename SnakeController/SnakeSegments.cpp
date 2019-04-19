@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include "EventT.hpp"
+#include "SnakeWorld.hpp"
 
 namespace Snake
 {
@@ -105,9 +106,9 @@ void Segments::addHeadSegment(Position position)
     m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
 }
 
-void Segments::removeTailSegmentIfNotScored(Position headPosition, Position foodPosition)
+void Segments::removeTailSegmentIfNotScored(Position position, World& world)
 {
-    if (headPosition == foodPosition) {
+    if (position == world.getFoodPosition()) {
         ScoreInd scoreIndication{size() - 1};
         m_scorePort.send(std::make_unique<EventT<ScoreInd>>(scoreIndication));
         m_foodPort.send(std::make_unique<EventT<FoodReq>>());
@@ -116,13 +117,13 @@ void Segments::removeTailSegmentIfNotScored(Position headPosition, Position food
     }
 }
 
-void Segments::updateSegmentsIfSuccessfullMove(Position headPosition, bool colisionOrOutOfBonds, Position foodPosition)
+void Segments::updateSegmentsIfSuccessfullMove(Position position, World& world)
 {
-    if (colisionOrOutOfBonds) {
+    if (isCollision(position) or not world.contains(position)) {
         m_scorePort.send(std::make_unique<EventT<LooseInd>>());
     } else {
-        addHeadSegment(headPosition);
-        removeTailSegmentIfNotScored(headPosition, foodPosition);
+        addHeadSegment(position);
+        removeTailSegmentIfNotScored(position, world);
     }
 }
 

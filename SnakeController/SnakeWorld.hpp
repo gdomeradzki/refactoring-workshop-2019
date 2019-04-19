@@ -7,6 +7,8 @@
 namespace Snake
 {
 
+class Segments;
+
 class World
 {
 public:
@@ -17,7 +19,7 @@ public:
 
     bool contains(Position position) const;
 
-	void updateFoodPosition(Position position, bool colisionOrOutOfBonds, bool clearNeeded);
+	void updateFoodPosition(Position position, bool clearNeeded, Segments& segments);
 	void sendClearOldFood();
 	void sendPlaceNewFood(Position position);
 private:
