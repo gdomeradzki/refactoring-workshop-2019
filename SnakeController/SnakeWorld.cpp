@@ -3,10 +3,11 @@
 namespace Snake
 {
 
-World::World(Dimension dimension, Position food)
+World::World(Dimension dimension, Position food, IPort& displayPort)
     : m_foodPosition(food),
-      m_dimension(dimension)
+      m_dimension(dimension),m_displayPort(displayPort)
 {}
+
 
 void World::setFoodPosition(Position position)
 {
@@ -22,4 +23,17 @@ bool World::contains(Position position) const
 {
     return m_dimension.isInside(position);
 }
+
+void World::sendPlaceNewFood(Position position)
+{
+    setFoodPosition(position);
+
+    DisplayInd placeNewFood;
+    placeNewFood.position = position;
+    placeNewFood.value = Cell_FOOD;
+
+    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
+}
+
+
 } // namespace Snake

@@ -45,7 +45,7 @@ Position readFoodPosition(std::istream& istr)
     return position;
 }
 
-std::unique_ptr<World> readWorld(std::istream& istr)
+std::unique_ptr<World> readWorld(std::istream& istr, IPort& m_displayPort)
 {
     if (not checkControl(istr, 'W')) {
         throw ConfigurationError();
@@ -53,8 +53,14 @@ std::unique_ptr<World> readWorld(std::istream& istr)
 
     auto worldDimension = readWorldDimension(istr);
     auto foodPosition = readFoodPosition(istr);
-    return std::make_unique<World>(worldDimension, foodPosition);
+    return std::make_unique<World>(worldDimension, foodPosition,m_displayPort);
 }
+
+ IPort& Controller::getPort()
+ {
+     return m_displayPort;
+ }
+
 
 Direction readDirection(std::istream& istr)
 {
@@ -86,7 +92,7 @@ Controller::Controller(IPort& displayPort, IPort& foodPort, IPort& scorePort, st
 {
     std::istringstream istr(initialConfiguration);
 
-    m_world = readWorld(istr);
+    m_world = readWorld(istr,m_displayPort);
     m_segments = std::make_unique<Segments>(readDirection(istr));
 
     int length;
@@ -106,7 +112,7 @@ Controller::Controller(IPort& displayPort, IPort& foodPort, IPort& scorePort, st
 Controller::~Controller()
 {}
 
-void Controller::sendPlaceNewFood(Position position)
+/*void Controller::sendPlaceNewFood(Position position)
 {
     m_world->setFoodPosition(position);
 
@@ -115,7 +121,7 @@ void Controller::sendPlaceNewFood(Position position)
     placeNewFood.value = Cell_FOOD;
 
     m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
-}
+}*/
 
 void Controller::sendClearOldFood()
 {
@@ -190,7 +196,7 @@ void Controller::updateFoodPosition(Position position, std::function<void()> cle
     }
 
     clearPolicy();
-    sendPlaceNewFood(position);
+    m_world->sendPlaceNewFood(position);
 }
 
 void Controller::handleFoodInd(std::unique_ptr<Event> e)
