@@ -20,9 +20,10 @@ public:
     bool contains(Position position) const;
 
 	void updateFoodPosition(Position position, bool clearNeeded, Segments& segments);
+private:
 	void sendClearOldFood();
 	void sendPlaceNewFood(Position position);
-private:
+
 	IPort& m_displayPort;
 	IPort& m_foodPort;
 	IPort& m_scorePort;
