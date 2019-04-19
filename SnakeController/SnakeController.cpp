@@ -45,7 +45,7 @@ Position readFoodPosition(std::istream& istr)
     return position;
 }
 
-std::unique_ptr<World> readWorld(std::istream& istr, IPort& displayPort, IPort& foodPort)
+std::unique_ptr<World> readWorld(std::istream& istr, IPort& displayPort, IPort& foodPort, IPort& scorePort)
 {
     if (not checkControl(istr, 'W')) {
         throw ConfigurationError();
@@ -53,7 +53,7 @@ std::unique_ptr<World> readWorld(std::istream& istr, IPort& displayPort, IPort& 
 
     auto worldDimension = readWorldDimension(istr);
     auto foodPosition = readFoodPosition(istr);
-    return std::make_unique<World>(worldDimension, foodPosition, displayPort, foodPort);
+    return std::make_unique<World>(worldDimension, foodPosition, displayPort, foodPort, scorePort);
 }
 
 Direction readDirection(std::istream& istr)
@@ -83,7 +83,7 @@ Controller::Controller(IPort& displayPort, IPort& foodPort, IPort& scorePort, st
 {
     std::istringstream istr(initialConfiguration);
 
-    m_world = readWorld(istr, displayPort, foodPort);
+    m_world = readWorld(istr, displayPort, foodPort, scorePort);
     m_segments = std::make_unique<Segments>(readDirection(istr), displayPort, foodPort, scorePort);
 
     int length;

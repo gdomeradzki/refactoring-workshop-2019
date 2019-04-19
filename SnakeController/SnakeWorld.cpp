@@ -6,9 +6,10 @@
 namespace Snake
 {
 
-World::World(Dimension dimension, Position food, IPort& displayPort, IPort& foodPort)
+World::World(Dimension dimension, Position food, IPort& displayPort, IPort& foodPort, IPort& scorePort)
     : m_displayPort(displayPort),
       m_foodPort(foodPort),
+      m_scorePort(scorePort),
       m_foodPosition(food),
       m_dimension(dimension)
 {}
