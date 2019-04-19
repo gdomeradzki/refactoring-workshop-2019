@@ -20,6 +20,7 @@ public:
     void removeTailSegmentIfNotScored(Position position, IPort& displayPort, World& world,
                                         IPort& scorePort, IPort& foodPort);
     void addHead(Position position);
+    void addHeadSegment(Position position, IPort& displayPort);
     Position nextHead() const;
     Position removeTail();
     void updateDirection(Direction newDirection);

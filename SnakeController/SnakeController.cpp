@@ -106,23 +106,12 @@ Controller::Controller(IPort& displayPort, IPort& foodPort, IPort& scorePort, st
 Controller::~Controller()
 {}
 
-void Controller::addHeadSegment(Position position)
-{
-    m_segments->addHead(position);
-
-    DisplayInd placeNewHead;
-    placeNewHead.position = position;
-    placeNewHead.value = Cell_SNAKE;
-
-    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
-}
-
 void Controller::updateSegmentsIfSuccessfullMove(Position position)
 {
     if (m_segments->isCollision(position) or not m_world->contains(position)) {
         m_scorePort.send(std::make_unique<EventT<LooseInd>>());
     } else {
-        addHeadSegment(position);
+        m_segments->addHeadSegment(position, m_displayPort);
         m_segments->removeTailSegmentIfNotScored(position, m_displayPort, *m_world, m_scorePort, m_foodPort);
     }
 }

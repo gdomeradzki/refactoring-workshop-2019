@@ -50,7 +50,7 @@ private:
     void handlePauseInd(std::unique_ptr<Event>);
 
     void updateSegmentsIfSuccessfullMove(Position position);
-    void addHeadSegment(Position position);
+
 
     bool m_paused;
 };

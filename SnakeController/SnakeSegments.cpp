@@ -62,6 +62,17 @@ void Segments::removeTailSegmentIfNotScored(Position position, IPort& displayPor
     }
 }
 
+void Segments::addHeadSegment(Position position, IPort& displayPort)
+{
+    addHead(position);
+
+    DisplayInd placeNewHead;
+    placeNewHead.position = position;
+    placeNewHead.value = Cell_SNAKE;
+
+    displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
+}
+
 bool Segments::isCollision(Position position) const
 {
     return m_segments.end() !=  std::find_if(m_segments.cbegin(), m_segments.cend(),
