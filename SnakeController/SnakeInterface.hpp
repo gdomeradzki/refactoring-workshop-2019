@@ -3,7 +3,8 @@
 #include <cstdint>
 
 #include "SnakePosition.hpp"
-
+#include "SnakeWorld.hpp"
+#include "SnakeSegments.hpp"
 namespace Snake
 {
 
