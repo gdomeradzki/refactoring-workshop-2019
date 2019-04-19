@@ -51,8 +51,7 @@ private:
 
     void updateSegmentsIfSuccessfullMove(Position position);
 
-    void removeTailSegmentIfNotScored(Position position);
-    void removeTailSegment();
+
 
     void updateFoodPosition(Position position, std::function<void()> clearPolicy);
     void sendClearOldFood();

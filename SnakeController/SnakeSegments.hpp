@@ -16,6 +16,8 @@ class Segments
 public:
     Segments(Direction direction, IPort& displayPort, IPort& foodPort, IPort& scorePort);
     void addHeadSegment(Position position);
+    void removeTailSegmentIfNotScored(Position position, Position foodPosition);
+    void removeTailSegment();
     bool isCollision(Position position) const;
     void addSegment(Position position);
     void addHead(Position position);

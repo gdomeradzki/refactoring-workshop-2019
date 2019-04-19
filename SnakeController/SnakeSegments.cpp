@@ -62,6 +62,32 @@ void Segments::addHeadSegment(Position position)
 
     m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
 }
+
+void Segments::removeTailSegment()
+{
+    auto tailPosition = removeTail();
+
+    DisplayInd clearTail;
+    clearTail.position = tailPosition;
+    clearTail.value = Cell_FREE;
+
+    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearTail));
+}
+
+
+
+void Segments::removeTailSegmentIfNotScored(Position position, Position foodPosition)
+{
+    if (position == foodPosition) {
+        ScoreInd scoreIndication{size() - 1};
+        m_scorePort.send(std::make_unique<EventT<ScoreInd>>(scoreIndication));
+        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
+    } else {
+        removeTailSegment();
+    }
+}
+
+
 Position Segments::removeTail()
 {
     auto tail = m_segments.back();

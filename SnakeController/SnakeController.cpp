@@ -87,7 +87,7 @@ Controller::Controller(IPort& displayPort, IPort& foodPort, IPort& scorePort, st
     std::istringstream istr(initialConfiguration);
 
     m_world = readWorld(istr);
-    m_segments = std::make_unique<Segments>(readDirection(istr),displayPort, foodPort,scorePort);
+    m_segments = std::make_unique<Segments>(readDirection(istr),displayPort, foodPort,scorePort );
 
     int length;
     istr >> length;
@@ -128,29 +128,7 @@ void Controller::sendClearOldFood()
     m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearOldFood));
 }
 
-void Controller::removeTailSegment()
-{
-    auto tailPosition = m_segments->removeTail();
 
-    DisplayInd clearTail;
-    clearTail.position = tailPosition;
-    clearTail.value = Cell_FREE;
-
-    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearTail));
-}
-
-
-
-void Controller::removeTailSegmentIfNotScored(Position position)
-{
-    if (position == m_world->getFoodPosition()) {
-        ScoreInd scoreIndication{m_segments->size() - 1};
-        m_scorePort.send(std::make_unique<EventT<ScoreInd>>(scoreIndication));
-        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
-    } else {
-        removeTailSegment();
-    }
-}
 
 void Controller::updateSegmentsIfSuccessfullMove(Position position)
 {
@@ -158,7 +136,7 @@ void Controller::updateSegmentsIfSuccessfullMove(Position position)
         m_scorePort.send(std::make_unique<EventT<LooseInd>>());
     } else {
         m_segments->addHeadSegment(position);
-        removeTailSegmentIfNotScored(position);
+        m_segments->removeTailSegmentIfNotScored(position, m_world->getFoodPosition());
     }
 }
 
