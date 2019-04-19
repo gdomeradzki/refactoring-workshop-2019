@@ -25,9 +25,7 @@ public:
     unsigned size() const;
 
     void updateSegmentsIfSuccessfullMove(Position position);
-    void addHeadSegment(Position position);
-    void removeTailSegmentIfNotScored(Position position);
-    void removeTailSegment();
+
 private:
     Direction m_headDirection;
     std::list<Position> m_segments;
@@ -35,6 +33,10 @@ private:
     IPort& m_foodPort;
     IPort& m_scorePort;
     IPort& m_displayPort;
+
+    void addHeadSegment(Position position);
+    void removeTailSegmentIfNotScored(Position position);
+    void removeTailSegment();
 
 };
 

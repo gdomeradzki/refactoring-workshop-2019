@@ -15,6 +15,10 @@ public:
     Position getFoodPosition() const;
 
     bool contains(Position position) const;
+
+//    void updateFoodPosition(Position position, std::function<void()> clearPolicy);
+//    void sendClearOldFood();
+//    void sendPlaceNewFood(Position position);
 private:
     Position m_foodPosition;
     Dimension m_dimension;
