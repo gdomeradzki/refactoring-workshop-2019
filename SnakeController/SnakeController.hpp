@@ -54,8 +54,8 @@ private:
     void removeTailSegmentIfNotScored(Position position);
     void removeTailSegment();
 
-    void updateFoodPosition(Position position, std::function<void()> clearPolicy);
-    void sendClearOldFood();
+    // void updateFoodPosition(Position position, std::function<void(IPort&)> clearPolicy);
+    //void sendClearOldFood();
 
     bool m_paused;
 };
