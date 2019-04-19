@@ -15,6 +15,7 @@ public:
     Position getFoodPosition() const;
 
     bool contains(Position position) const;
+
 private:
     Position m_foodPosition;
     Dimension m_dimension;
