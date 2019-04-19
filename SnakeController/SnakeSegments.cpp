@@ -78,6 +78,7 @@ void Segments::updateDirection(Direction newDirection)
     }
 }
 
+
 unsigned Segments::size() const
 {
     return m_segments.size();
@@ -116,4 +117,13 @@ void Segments::removeTailSegmentIfNotScored(Position position, const World & m_w
     }
 }
 
+void Segments::updateSegmentsIfSuccessfullMove( Position position, const World & m_world )
+{
+    if (isCollision(position) or not m_world.contains(position)) {
+        m_scorePort.send(std::make_unique<EventT<LooseInd>>());
+    } else {
+        addHeadSegment(position);
+        removeTailSegmentIfNotScored(position, m_world);
+    }
+}
 } // namespace Snake

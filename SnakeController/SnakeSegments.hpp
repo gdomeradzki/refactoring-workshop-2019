@@ -27,6 +27,7 @@ public:
     void addHeadSegment( Position position );
     void removeTailSegment();
     void removeTailSegmentIfNotScored(Position position, const World &);
+    void updateSegmentsIfSuccessfullMove( Position position, const World & m_world );
 private:
     IPort& m_displayPort;
     IPort& m_scorePort;
