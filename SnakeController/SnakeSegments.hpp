@@ -11,7 +11,7 @@ class IPort;
 
 namespace Snake
 {
-
+class World;
 class Segments
 {
 public:
@@ -25,9 +25,10 @@ public:
     void updateDirection(Direction newDirection);
     unsigned size() const;
 
-    // void updateSegmentsIfSuccessfullMove(Position position, IPort& m_displayPort, IPort& m_foodPort, IPort& m_scorePort);
+    void updateSegmentsIfSuccessfullMove(Position position, World& m_world);
     void addHeadSegment(Position position);
-    void removeTailSegment(IPort& m_displayPort);
+    void removeTailSegmentIfNotScored(Position position, World& m_world);
+    void removeTailSegment();
 
 private:
     Direction m_headDirection;
