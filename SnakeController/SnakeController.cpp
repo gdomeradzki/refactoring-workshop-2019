@@ -87,7 +87,7 @@ Controller::Controller(IPort& displayPort, IPort& foodPort, IPort& scorePort, st
     std::istringstream istr(initialConfiguration);
 
     m_world = readWorld(istr);
-    m_segments = std::make_unique<Segments>(readDirection(istr));
+    m_segments = std::make_unique<Segments>(readDirection(istr), m_displayPort,m_foodPort, m_scorePort, *m_world);
 
     int length;
     istr >> length;
@@ -128,53 +128,16 @@ void Controller::sendClearOldFood()
     m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearOldFood));
 }
 
-void Controller::removeTailSegment()
-{
-    auto tailPosition = m_segments->removeTail();
 
-    DisplayInd clearTail;
-    clearTail.position = tailPosition;
-    clearTail.value = Cell_FREE;
 
-    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearTail));
-}
 
-void Controller::addHeadSegment(Position position)
-{
-    m_segments->addHead(position);
 
-    DisplayInd placeNewHead;
-    placeNewHead.position = position;
-    placeNewHead.value = Cell_SNAKE;
 
-    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
-}
-
-void Controller::removeTailSegmentIfNotScored(Position position)
-{
-    if (position == m_world->getFoodPosition()) {
-        ScoreInd scoreIndication{m_segments->size() - 1};
-        m_scorePort.send(std::make_unique<EventT<ScoreInd>>(scoreIndication));
-        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
-    } else {
-        removeTailSegment();
-    }
-}
-
-void Controller::updateSegmentsIfSuccessfullMove(Position position)
-{
-    if (m_segments->isCollision(position) or not m_world->contains(position)) {
-        m_scorePort.send(std::make_unique<EventT<LooseInd>>());
-    } else {
-        addHeadSegment(position);
-        removeTailSegmentIfNotScored(position);
-    }
-}
 
 void Controller::handleTimeoutInd()
 {
     auto newHead = m_segments->nextHead();
-    updateSegmentsIfSuccessfullMove(newHead);
+    m_segments->updateSegmentsIfSuccessfullMove(newHead);
 }
 
 void Controller::handleDirectionInd(std::unique_ptr<Event> e)

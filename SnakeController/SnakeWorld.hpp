@@ -2,7 +2,8 @@
 
 #include "SnakePosition.hpp"
 #include "SnakeDimension.hpp"
-
+#include "EventT.hpp"
+#include "IPort.hpp"
 namespace Snake
 {
 
@@ -15,6 +16,7 @@ public:
     Position getFoodPosition() const;
 
     bool contains(Position position) const;
+ 
 private:
     Position m_foodPosition;
     Dimension m_dimension;
