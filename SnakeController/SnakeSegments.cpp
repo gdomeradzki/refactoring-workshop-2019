@@ -1,5 +1,7 @@
 #include "SnakeSegments.hpp"
-
+#include "IPort.hpp"
+#include "Event.hpp"
+#include "EventT.hpp"
 #include <algorithm>
 
 namespace Snake
@@ -29,9 +31,12 @@ bool perpendicular(Direction dir1, Direction dir2)
 }
 } // namespace
 
-Segments::Segments(Direction direction)
-    : m_headDirection(direction)
-{}
+Segments::Segments(Direction direction, IPort& displayPort, IPort& foodPort, IPort& scorePort)
+    : m_headDirection(direction),
+      m_displayPort(displayPort),
+      m_foodPort(foodPort),
+      m_scorePort(scorePort)
+    {}
 
 void Segments::addSegment(Position position)
 {
@@ -79,4 +84,14 @@ unsigned Segments::size() const
     return m_segments.size();
 }
 
+void Segments::removeTailSegment(IPort& m_displayPort)
+{
+    auto tailPosition = removeTail();
+
+    DisplayInd clearTail;
+    clearTail.position = tailPosition;
+    clearTail.value = Cell_FREE;
+
+    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearTail));
+}
 } // namespace Snake
