@@ -66,5 +66,4 @@ void World::sendPlaceNewFood(Position position)
     m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewFood));
 }
 
-
 } // namespace Snake
