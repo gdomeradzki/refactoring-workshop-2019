@@ -79,4 +79,53 @@ unsigned Segments::size() const
     return m_segments.size();
 }
 
+void Segments::addHeadSegment(Position position, IPort& m_displayPort)
+{
+    addHead(position);
+
+    DisplayInd placeNewHead;
+    placeNewHead.position = position;
+    placeNewHead.value = Cell_SNAKE;
+
+    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
+}
+
+void Segments::removeTailSegment(IPort& m_displayPort)
+{
+    Position tailPosition = removeTail();
+
+    DisplayInd clearTail;
+    clearTail.position = tailPosition;
+    clearTail.value = Cell_FREE;
+
+    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(clearTail));
+}
+
+/*
+    void Segments::removeTailSegmentIfNotScored(Position position,IPort& m_displayPort, IPort& m_foodPort, IPort& m_scorePort, std::unique_ptr<World> &m_world)
+{
+    if (position == m_world->getFoodPosition()) {
+        ScoreInd scoreIndication{size() - 1};
+        m_scorePort.send(std::make_unique<EventT<ScoreInd>>(scoreIndication));
+        m_foodPort.send(std::make_unique<EventT<FoodReq>>());
+    } else {
+        removeTailSegment(m_displayPort);
+    }
+}
+
+
+    void Segments::updateSegmentsIfSuccessfullMove(Position position, std::unique_ptr<World> &m_world, IPort& m_scorePort, IPort& m_foodPort, IPort& m_displayPort)
+{
+    if (isCollision(position) or not m_world->contains(position)) {
+        m_scorePort.send(std::make_unique<EventT<LooseInd>>());
+    } else {
+        addHeadSegment(position, m_displayPort);
+        removeTailSegmentIfNotScored(position, m_displayPort, m_foodPort, m_scorePort, m_world);
+    }
+
+}
+
+*/
+
+
 } // namespace Snake
