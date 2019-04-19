@@ -79,4 +79,5 @@ unsigned Segments::size() const
     return m_segments.size();
 }
 
+
 } // namespace Snake
