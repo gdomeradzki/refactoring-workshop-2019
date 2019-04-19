@@ -1,14 +1,14 @@
 #pragma once
-#include "SnakeSegments.hpp"
+
 #include "SnakePosition.hpp"
 #include "SnakeDimension.hpp"
-#include "IPort.hpp"
+
 #include <functional>
 
-
+class IPort;
 namespace Snake
 {
-
+class Segments;
 class World
 {
 public:
@@ -16,9 +16,11 @@ public:
 
     void setFoodPosition(Position position);
     Position getFoodPosition() const;
-    void updateFoodPosition(Position position, std::function<void()> clearPolicy, Segments & m_segments);
+    void updateFoodPosition(Position position, const Segments & m_segments );
+    void updateFoodPositionWithClearPolicy(Position position, std::function<void()> clearPolicy, const Segments & m_segments);
     bool contains(Position position) const;
     void sendPlaceNewFood(Position position);
+    void sendClearOldFood();
 private:
     IPort& m_displayPort;
     IPort& m_foodPort;
