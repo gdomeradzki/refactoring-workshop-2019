@@ -5,6 +5,12 @@
 #include "SnakeInterface.hpp"
 #include "SnakePosition.hpp"
 
+#include <functional>
+#include <memory>
+#include "EventT.hpp"
+#include "IPort.hpp"
+#include "SnakeSegments.hpp"
+
 namespace Snake
 {
 
@@ -21,7 +27,7 @@ public:
     void updateDirection(Direction newDirection);
     unsigned size() const;
 
-
+    void addHeadSegment(Position position, std::unique_ptr<Segments>& m_segments, IPort& m_displayPort);
 private:
     Direction m_headDirection;
     std::list<Position> m_segments;

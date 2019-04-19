@@ -49,4 +49,5 @@ void World::updateFoodPosition(Position position, std::function<void()> clearPol
     sendPlaceNewFood(position, m_displayPort);
 }
 
+
 } // namespace Snake

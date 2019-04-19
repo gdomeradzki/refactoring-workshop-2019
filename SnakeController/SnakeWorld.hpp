@@ -23,7 +23,8 @@ public:
 
     void sendPlaceNewFood(Position position, IPort& m_displayPort);
     void updateFoodPosition(Position position, std::function<void()> clearPolicy, std::unique_ptr<Segments>& m_segments, IPort& m_foodPort, IPort& m_displayPort);
-
+    //void sendClearOldFood(IPort& m_displayPort);
+   // void handleFoodInd(std::unique_ptr<Event> e, std::unique_ptr<Segments>& m_segments, IPort& m_foodPort, IPort& m_displayPort);
 
 private:
     Position m_foodPosition;

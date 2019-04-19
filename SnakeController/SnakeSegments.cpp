@@ -79,5 +79,15 @@ unsigned Segments::size() const
     return m_segments.size();
 }
 
+void Segments::addHeadSegment(Position position, std::unique_ptr<Segments>& m_segments, IPort& m_displayPort)
+{
+    m_segments->addHead(position);
+
+    DisplayInd placeNewHead;
+    placeNewHead.position = position;
+    placeNewHead.value = Cell_SNAKE;
+
+    m_displayPort.send(std::make_unique<EventT<DisplayInd>>(placeNewHead));
+}
 
 } // namespace Snake
