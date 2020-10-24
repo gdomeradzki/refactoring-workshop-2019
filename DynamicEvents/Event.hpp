@@ -6,8 +6,8 @@
 class Event
 {
 public:
-    virtual ~Event() = default;
+	virtual ~Event() = default;
 
-    virtual std::uint32_t getMessageId() const = 0;
-    virtual std::unique_ptr<Event> clone() const  = 0;
+	virtual std::uint32_t getMessageId() const = 0;
+	virtual std::unique_ptr<Event> clone() const = 0;
 };

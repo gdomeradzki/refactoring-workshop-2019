@@ -13,41 +13,49 @@ namespace Snake
 {
 struct ConfigurationError : std::logic_error
 {
-    ConfigurationError();
+	ConfigurationError();
 };
 
 struct UnexpectedEventException : std::runtime_error
 {
-    UnexpectedEventException();
+	UnexpectedEventException();
 };
 
 class Controller : public IEventHandler
 {
 public:
-    Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePort, std::string const& p_config);
+	Controller(IPort &p_displayPort, IPort &p_foodPort, IPort &p_scorePort, std::string const &p_config);
 
-    Controller(Controller const& p_rhs) = delete;
-    Controller& operator=(Controller const& p_rhs) = delete;
+	Controller(Controller const &p_rhs) = delete;
+	Controller &operator=(Controller const &p_rhs) = delete;
 
-    void receive(std::unique_ptr<Event> e) override;
+	void receive(std::unique_ptr<Event> e) override;
 
 private:
-    struct Segment
-    {
-        int x;
-        int y;
-        int ttl;
-    };
+	struct Segment
+	{
+		int x;
+		int y;
+		int ttl;
 
-    IPort& m_displayPort;
-    IPort& m_foodPort;
-    IPort& m_scorePort;
+		bool operator==(const Segment &s1);
+	};
 
-    std::pair<int, int> m_mapDimension;
-    std::pair<int, int> m_foodPosition;
+	Segment getNewHead() const;
+	bool sendScoreForFirstSegmentContainedInSegments(const Segment &head);
+	void displayEverySegment();
+	void addNewHead(const Segment &newHead);
+	bool isFood(int x, int y);
 
-    Direction m_currentDirection;
-    std::list<Segment> m_segments;
+	IPort &m_displayPort;
+	IPort &m_foodPort;
+	IPort &m_scorePort;
+
+	std::pair<int, int> m_mapDimension;
+	std::pair<int, int> m_foodPosition;
+
+	Direction m_currentDirection;
+	std::list<Segment> m_segments;
 };
 
 } // namespace Snake
