@@ -7,6 +7,6 @@ class Event;
 class IEventHandler
 {
 public:
-    virtual ~IEventHandler() = default;
-    virtual void receive(std::unique_ptr<Event>) = 0;
+	virtual ~IEventHandler() = default;
+	virtual void receive(std::unique_ptr<Event>) = 0;
 };
