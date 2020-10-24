@@ -37,7 +37,15 @@ private:
 		int x;
 		int y;
 		int ttl;
+
+		bool operator==(const Segment &s1);
 	};
+
+	Segment getNewHead() const;
+	bool sendScoreForFirstSegmentContainedInSegments(const Segment &head);
+	void displayEverySegment();
+	void addNewHead(const Segment &newHead);
+	bool isFood(int x, int y);
 
 	IPort &m_displayPort;
 	IPort &m_foodPort;
